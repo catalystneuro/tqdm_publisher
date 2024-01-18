@@ -6,7 +6,7 @@ on:
       - opened
 
 jobs:
-  add_issue_to_dashboard:
+  add_to_dashboard:
     uses: catalystneuro/.github/.github/workflows/add_issue_to_dashboard.yml@main
     secrets:
       PROJECT_TOKEN: ${{ secrets.PROJECT_TOKEN }}
