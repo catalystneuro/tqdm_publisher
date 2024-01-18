@@ -45,15 +45,8 @@ body:
   - type: dropdown
     id: code_of_conduct
     attributes:
-      label: Do you agree to follow our [Code of Conduct](https://github.com/catalystneuro/neuroconv/blob/main/.github/CODE_OF_CONDUCT.rst)?
-      options:
-        - "Yes"
-    validations:
-      required: true
-  - type: dropdown
-    id: unreported_issue
-    attributes:
-      label: Have you ensured this bug was not already [reported](https://github.com/catalystneuro/neuroconv/issues)?
+      label: Code of Conduct
+      description: Do you agree to follow our [Code of Conduct](https://github.com/catalystneuro/neuroconv/blob/main/.github/CODE_OF_CONDUCT.rst)?
       options:
         - "Yes"
     validations:
