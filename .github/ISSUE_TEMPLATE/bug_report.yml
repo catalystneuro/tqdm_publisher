@@ -48,7 +48,7 @@ body:
       label: Code of Conduct
       description: Do you agree to follow our [Code of Conduct](https://github.com/catalystneuro/neuroconv/blob/main/.github/CODE_OF_CONDUCT.rst)?
       options:
-        - Yes
+        - "Yes"
     validations:
       required: true
   - type: dropdown
@@ -57,6 +57,6 @@ body:
       label: Unreported Issue
       description: Have you ensured this bug was not already [reported](https://github.com/catalystneuro/neuroconv/issues)?
       options:
-        - Yes
+        - "Yes"
     validations:
       required: true
