@@ -1,0 +1,12 @@
+name: Add Issue to Dashboard
+
+on:
+  issues:
+    types:
+      - opened
+
+jobs:
+  add_to_dashboard:
+    uses: catalystneuro/.github/.github/workflows/add_issue_to_dashboard.yml@main
+    secrets:
+      PROJECT_TOKEN: ${{ secrets.PROJECT_TOKEN }}
