@@ -44,9 +44,9 @@ body:
       required: true
   - type: dropdown
     id: code_of_conduct
-    label: Code of Conduct
-    description: Do you agree to follow our [Code of Conduct](https://github.com/catalystneuro/neuroconv/blob/main/.github/CODE_OF_CONDUCT.rst)?
     attributes:
+      label: Code of Conduct
+      description: Do you agree to follow our [Code of Conduct](https://github.com/catalystneuro/neuroconv/blob/main/.github/CODE_OF_CONDUCT.rst)?
       options:
         - "Yes"
     validations:
