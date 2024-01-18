@@ -46,7 +46,7 @@ body:
     id: code_of_conduct
     attributes:
       label: Code of Conduct
-      description: Do you agree to follow our [Code of Conduct](https://github.com/catalystneuro/neuroconv/blob/main/.github/CODE_OF_CONDUCT.rst)?
+      description: Do you agree to follow our [Code of Conduct](https://github.com/catalystneuro/tqdm_publisher/blob/main/.github/CODE_OF_CONDUCT.md)?
       options:
         - "Yes"
     validations:
