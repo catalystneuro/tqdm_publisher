@@ -1,7 +1,7 @@
 name: Add Pull Request to Dashboard
 
 on:
-  issues:
+  pull_request:
     types:
       - opened
 
