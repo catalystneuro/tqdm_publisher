@@ -29,7 +29,14 @@ classifiers = [
     "Operating System :: Unix",
 ]
 dependencies = [
-    'tqdm>=4.49.0'
+    "tqdm>=4.49.0"
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest", 
+    "pytest-asyncio", 
+    "pytest-cov"
 ]
 
 [project.urls]
