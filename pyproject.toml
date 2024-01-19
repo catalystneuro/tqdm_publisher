@@ -38,3 +38,6 @@ dependencies = [
 
 [tool.hatch.version]
 source = "vcs"
+
+[project.gui-scripts]
+tqdm_publisher-test-server = "demo.server:main"

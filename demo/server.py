@@ -148,10 +148,13 @@ class WebSocketHandler:
 
 
 
-async def main():
+async def spawn_server():
     handler = WebSocketHandler().handler
     async with websockets.serve(handler, "", 8000):
         await asyncio.Future()  # run forever
 
+def main():
+    asyncio.run(spawn_server())
+
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
