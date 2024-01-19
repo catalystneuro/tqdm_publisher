@@ -9,22 +9,95 @@ class TQDMPublisher(base_tqdm):
         super().__init__(*args, **kwargs)
         self.callbacks = {}
 
-    # Override the update method to call callbacks 
-    def update(self, n=1, always_callback=False):
-        if super().update(n) or always_callback:
 
+    # Override the update method to call callbacks 
+    def update(self, n=1):
+        if super().update(n):
             for id in list(self.callbacks):
                 callback = self.callbacks.get(id)
                 if callback:
                     callback(self.format_dict)
 
 
-    # Subscribe to updates
-    def subscribe(self, callback):
-        callback_id = uuid4()
+    def subscribe(self, callback: callable):
+        """
+        Subscribe to updates from the progress bar.
+
+        This method assigns a unique ID to the given callback and stores it in an internal
+        dictionary. It allows the callback to be referenced and activated in the overriden
+        update function for TQDM. The unique callback ID is returned, which can be used
+        for future operations such as deregistering the callback.
+
+
+        Parameters
+        ----------
+        callback : callable
+            A callable object (like a function) that will be called back by this object.
+            The callback should be able to be invoked with a single argument, the progress 
+            bar's format_dict.
+
+        Returns
+        -------
+        str
+            A unique identifier for the callback. This ID is a hexadecimal UUID string
+            and can be used to reference the registered callback in future operations.
+
+        Examples
+        --------
+        >>> def my_callback(format_dict):
+        >>>     print("Progress update", format_dict)
+        >>>
+        >>> publisher = TQDMPublisher()
+        >>> callback_id = publisher.subscribe(my_callback)
+        >>> print(callback_id)  # Prints the unique callback ID
+        """
+
+        callback_id = uuid4().hex
         self.callbacks[callback_id] = callback
         return callback_id
     
-    # Unsubscribe from updates
-    def unsubscribe(self, callback_id):
-        del self.callbacks[callback_id]
+    def unsubscribe(self, callback_id: str):
+        """
+        Unsubscribe a previously registered callback from the progress bar updates.
+
+        This method removes the callback associated with the given unique ID from the internal
+        dictionary. It is used to deregister callbacks that were previously added via the 
+        `subscribe` method. Once a callback is removed, it will no longer be called during 
+        the progress bar's update events.
+
+        Parameters
+        ----------
+        callback_id : str
+            The unique identifier of the callback to be unsubscribed. This is the same hexadecimal
+            UUID string that was returned by the `subscribe` method when the callback was registered.
+
+        Returns
+        -------
+        bool
+            Returns True if the callback was successfully removed, or False if no callback was
+            found with the given ID.
+
+        Examples
+        --------
+        >>> publisher = TQDMPublisher()
+        >>> callback_id = publisher.subscribe(my_callback)
+        >>> print(callback_id)  # Prints the unique callback ID
+        >>> unsubscribed = publisher.unsubscribe(callback_id)
+        >>> print(unsubscribed)  # True if successful, False otherwise
+
+        Raises
+        ------
+        KeyError
+            If the provided `callback_id` does not correspond to any registered callback.
+
+        Notes
+        -----
+        It's important to manage the lifecycle of callbacks, especially in cases where the
+        number of subscribers might grow large or change frequently. Unsubscribing callbacks
+        when they are no longer needed can help prevent memory leaks and other performance issues.
+        """
+        try:
+            del self.callbacks[callback_id]
+            return True
+        except KeyError:
+            return False
