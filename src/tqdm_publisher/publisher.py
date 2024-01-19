@@ -11,12 +11,13 @@ class TQDMPublisher(base_tqdm):
 
     # Override the update method to call callbacks 
     def update(self, n=1, always_callback=False):
-        if super().update(n) or always_callback:
+        displayed = super().update(n)
+        for id in list(self.callbacks):
+            callback = self.callbacks.get(id)
+            if callback:
+                callback(self.format_dict)
+        return displayed
 
-            for id in list(self.callbacks):
-                callback = self.callbacks.get(id)
-                if callback:
-                    callback(self.format_dict)
 
 
     # Subscribe to updates

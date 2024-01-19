@@ -2,6 +2,9 @@
 requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
 
+[tool.hatch.version]
+source = "vcs"
+
 [project]
 name = "tqdm_publisher"
 version="0.1.0"
@@ -43,13 +46,9 @@ demo = [
     "websockets==12.0"
 ]
 
-
 [project.urls]
 "Homepage" = "https://github.com/catalystneuro/tqdm_publisher"
 "Bug Tracker" = "https://github.com/catalystneuro/tqdm_publisher/issues"
 
-[tool.hatch.version]
-source = "vcs"
-
 [project.gui-scripts]
-tqdm_publisher-demo-server = "demo.server:main"
+tqdm_publisher = "cli:main"
