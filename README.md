@@ -41,3 +41,5 @@ n = 10**5
 sleep_durations = [random.uniform(0, 5.0) for _ in range(n)]
 asyncio.run(run_multiple_sleeps(sleep_durations=sleep_durations))
 ```
+
+A complete demo of `tqdm_publisher` can be found in the `demo` directory, which shows how to forward progress updates from the same `TQDMPublisher` instance to multiple clients.
