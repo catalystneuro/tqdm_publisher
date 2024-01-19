@@ -1,0 +1,37 @@
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[project]
+name = "tqdm_publisher"
+version="0.1.0"
+authors = [
+  { name="Garrett Flynn", email="garrett.flynn@catalystneuro.com" },
+  { name="Cody Baker", email="cody.baker@catalystneuro.com" },
+]
+description = "Subscribe to TQDM progress bars with arbitrary functions."
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "BSD-3-Clause"}
+classifiers = [
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "License :: OSI Approved :: BSD License",
+    "Intended Audience :: Developers",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: MacOS",
+    "Operating System :: Unix",
+]
+dependencies = [
+    'tqdm>=4.49.0'
+]
+
+[project.urls]
+"Homepage" = "https://github.com/catalystneuro/tqdm_publisher"
+"Bug Tracker" = "https://github.com/catalystneuro/tqdm_publisher/issues"
+
+[tool.hatch.version]
+source = "vcs"
