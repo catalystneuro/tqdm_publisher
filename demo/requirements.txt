@@ -1,2 +1,1 @@
-tqdm==4.66.1
 websockets==12.0
