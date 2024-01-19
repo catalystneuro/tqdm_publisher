@@ -21,7 +21,7 @@ class TQDMPublisher(base_tqdm):
 
     # Subscribe to updates
     def subscribe(self, callback):
-        callback_id = uuid4().hex
+        callback_id = uuid4()
         self.callbacks[callback_id] = callback
         return callback_id
     
