@@ -14,7 +14,7 @@ readme = "README.md"
 requires-python = ">=3.8"
 license = {file = "license.txt"}
 
-keywords = ["tqdm"]
+keywords = ["tqdm", "progressbar", "progressmeter", "progress", "bar", "meter", "time", "pubsub", "publish-subscribe pattern"]
 
 classifiers = [
     "Programming Language :: Python",
