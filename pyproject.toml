@@ -12,7 +12,8 @@ authors = [
 description = "Subscribe to TQDM progress bars with arbitrary functions."
 readme = "README.md"
 requires-python = ">=3.8"
-license = {text = "BSD-3-Clause"}
+license = {file = "license.txt"}
+
 classifiers = [
     "Programming Language :: Python",
     "Programming Language :: Python :: 3.8",
