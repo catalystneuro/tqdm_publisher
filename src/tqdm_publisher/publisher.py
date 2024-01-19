@@ -84,11 +84,6 @@ class TQDMPublisher(base_tqdm):
         >>> unsubscribed = publisher.unsubscribe(callback_id)
         >>> print(unsubscribed)  # True if successful, False otherwise
 
-        Raises
-        ------
-        KeyError
-            If the provided `callback_id` does not correspond to any registered callback.
-
         Notes
         -----
         It's important to manage the lifecycle of callbacks, especially in cases where the
