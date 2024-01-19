@@ -1,4 +1,4 @@
-name: Minimal and Full Tests
+name: Full Tests
 on:
   schedule:
     - cron: "0 16 * * *"  # Daily at noon EST
