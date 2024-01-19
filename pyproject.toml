@@ -40,4 +40,4 @@ dependencies = [
 source = "vcs"
 
 [project.gui-scripts]
-tqdm_publisher-test-server = "demo.server:main"
+tqdm_publisher-demo-server = "demo.server:main"
