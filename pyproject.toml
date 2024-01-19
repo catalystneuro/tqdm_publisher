@@ -46,4 +46,4 @@ demo = [
 source = "vcs"
 
 [project.gui-scripts]
-tqdm_publisher-demo-server = "demo.server:main"
+tqdm_publisher = "cli:main"

@@ -47,17 +47,14 @@ A complete demo of `tqdm_publisher` can be found in the `demo` directory, which 
 
 To run the demo, first install the dependencies:
 ```bash
-pip install -r demo/requirements.txt
+pip install tqdm_publisher[demo]
 ```
 
-Then, run the Python script for the demo:
+Then, run the base CLI command to start the demo server and client:
 ```bash
-python demo/main.py
+tqdm_publisher
 ```
 
-Finally, open the demo web page in your browser:
-```bash
-open demo/index.html
-```
+> **Note:** Alternatively, you can run each part of the demo separately by running `tqdm_publisher --server` and `tqdm_publisher --client` in separate terminals.
 
-You can then click the Create Progress Bar button to create a new `TQDMPublisher` instance, which will begin updating based on the `TQDMPublisher` instance in the Python script.
+Finally, you can click the Create Progress Bar button to create a new `TQDMPublisher` instance, which will begin updating based on the `TQDMPublisher` instance in the Python script.
