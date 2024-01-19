@@ -9,7 +9,7 @@ authors = [
   { name="Garrett Flynn", email="garrett.flynn@catalystneuro.com" },
   { name="Cody Baker", email="cody.baker@catalystneuro.com" },
 ]
-description = Extends the base tqdm progress bar with a subscribe method that can expose updates to external (potentially non-Python) processes."
+description = "Extends the base tqdm progress bar with a subscribe method that can expose updates to external (potentially non-Python) processes."
 readme = "README.md"
 requires-python = ">=3.8"
 license = {file = "license.txt"}
