@@ -39,8 +39,8 @@ class TQDMPublisher(base_tqdm):
         Returns
         -------
         str
-            A unique identifier for the callback. This ID is a hexadecimal UUID string
-            and can be used to reference the registered callback in future operations.
+            A unique identifier for the callback. This ID is a UUID string and can be used 
+            to reference the registered callback in future operations.
 
         Examples
         --------
@@ -52,7 +52,7 @@ class TQDMPublisher(base_tqdm):
         >>> print(callback_id)  # Prints the unique callback ID
         """
 
-        callback_id = uuid4().hex
+        callback_id = str(uuid4())
         self.callbacks[callback_id] = callback
         return callback_id
     
@@ -68,8 +68,8 @@ class TQDMPublisher(base_tqdm):
         Parameters
         ----------
         callback_id : str
-            The unique identifier of the callback to be unsubscribed. This is the same hexadecimal
-            UUID string that was returned by the `subscribe` method when the callback was registered.
+            The unique identifier of the callback to be unsubscribed. This is the same UUID string 
+            that was returned by the `subscribe` method when the callback was registered.
 
         Returns
         -------
