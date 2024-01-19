@@ -42,4 +42,22 @@ sleep_durations = [random.uniform(0, 5.0) for _ in range(n)]
 asyncio.run(run_multiple_sleeps(sleep_durations=sleep_durations))
 ```
 
+## Demo
 A complete demo of `tqdm_publisher` can be found in the `demo` directory, which shows how to forward progress updates from the same `TQDMPublisher` instance to multiple clients.
+
+To run the demo, first install the dependencies:
+```bash
+pip install -r demo/requirements.txt
+```
+
+Then, run the Python script for the demo:
+```bash
+python demo/main.py
+```
+
+Finally, open the demo web page in your browser:
+```bash
+open demo/index.html
+```
+
+You can then click the Create Progress Bar button to create a new `TQDMPublisher` instance, which will begin updating based on the `TQDMPublisher` instance in the Python script.
