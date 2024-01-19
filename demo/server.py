@@ -125,7 +125,7 @@ class WebSocketHandler:
             print(f"Error in task: {e}")
 
     async def handler(self, websocket):
-        id = uuid4()
+        id = str(uuid4())
         self.clients[id] = websocket # Register client connection
 
         progress_handler.start() # Start if not started
