@@ -15,9 +15,7 @@ async def test_subscription_and_callback_execution():
 
     def test_callback(identifier, data):
         nonlocal n_callback_executions
-
-        print(identifier)
-
+        
         if identifier not in n_callback_executions:
             n_callback_executions[identifier] = 0
 
@@ -25,18 +23,12 @@ async def test_subscription_and_callback_execution():
 
         assert 'n' in data and 'total' in data
 
-    def make_callback(identifier):
-        # This is a closure that captures 'identifier'
-        def callback(data):
-            return test_callback(identifier, data)
-        return callback
-
     tasks = create_tasks()
     publisher = TQDMPublisher(asyncio.as_completed(tasks), total=len(tasks))
 
     n_subscriptions = 10
     for i in range(n_subscriptions):
-        callback_id = publisher.subscribe(make_callback(i))
+        callback_id = publisher.subscribe(lambda data, i=i: test_callback(i, data)) # Creates a new scoped i value for subscription
         assert callback_id in publisher.callbacks
 
     # Simulate an update to trigger the callback
