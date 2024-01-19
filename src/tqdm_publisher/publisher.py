@@ -27,8 +27,7 @@ class TQDMPublisher(base_tqdm):
     
     # Unsubscribe from updates
     def unsubscribe(self, callback_id):
-        try:
-            del self.callbacks[callback_id]
-            return True
-        except KeyError:
+        if callback_id not in self.callbacks:
             return False
+        del self.callbacks[callback_id]
+        return True
