@@ -10,7 +10,7 @@ server_path = demo_base_path/ "server.py"
 def main():
 
     if (len(sys.argv) <= 1):
-        print("Please specify a command.")
+        print("No command provided. Please specify a command (e.g. 'demo').")
         return
     
     command = sys.argv[1]
