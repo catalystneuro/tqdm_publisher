@@ -39,7 +39,6 @@ test = [
     "pytest-cov"
 ]
 
-[project.optional-dependencies]
 demo = [
     "websockets==12.0"
 ]
