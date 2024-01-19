@@ -9,7 +9,7 @@ authors = [
   { name="Garrett Flynn", email="garrett.flynn@catalystneuro.com" },
   { name="Cody Baker", email="cody.baker@catalystneuro.com" },
 ]
-description = "Subscribe to TQDM progress bars with arbitrary functions. This is useful if you want to track the progress of a long-running task, but you also want to do something else with the progress information (e.g., forward it to a user interface, log it to a file, etc.)."
+description = Extends the base tqdm progress bar with a subscribe method that can expose updates to external (potentially non-Python) processes."
 readme = "README.md"
 requires-python = ">=3.8"
 license = {file = "license.txt"}
