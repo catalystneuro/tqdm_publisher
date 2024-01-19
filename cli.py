@@ -8,23 +8,29 @@ client_path = demo_base_path / "client.html"
 server_path = demo_base_path/ "server.py"
 
 def main():
-    flags = sys.argv[1:]
 
-    client_flag = "--client" in flags
-    server_flag = "--server" in flags
-    both_flags = "--server" in flags and "--client" in flags
+    command = sys.argv[1]
+    flags_list = sys.argv[2:]
 
-    commands = dict(
+    client_flag = "--client" in flags_list
+    server_flag = "--server" in flags_list
+    both_flags = "--server" in flags_list and "--client" in flags_list
+
+    flags = dict(
         client = not server_flag or both_flags,
         server = not client_flag or both_flags,
     
     )
 
-    if commands["client"]:
-        subprocess.run(["open", client_path])
-    
-    if commands["server"]:
-        subprocess.run(["python", server_path])
+    if (command == "demo"):
+        if flags["client"]:
+            subprocess.run(["open", client_path])
+        
+        if flags["server"]:
+            subprocess.run(["python", server_path])
+
+    else:
+        print(f"{command} is an invalid command.")
 
 
 if __name__ == "__main__":

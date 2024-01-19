@@ -52,9 +52,9 @@ pip install tqdm_publisher[demo]
 
 Then, run the base CLI command to start the demo server and client:
 ```bash
-tqdm_publisher
+tqdm_publisher demo
 ```
 
-> **Note:** Alternatively, you can run each part of the demo separately by running `tqdm_publisher --server` and `tqdm_publisher --client` in separate terminals.
+> **Note:** Alternatively, you can run each part of the demo separately by running `tqdm_publisher demo --server` and `tqdm_publisher demo --client` in separate terminals.
 
 Finally, you can click the Create Progress Bar button to create a new `TQDMPublisher` instance, which will begin updating based on the `TQDMPublisher` instance in the Python script.
