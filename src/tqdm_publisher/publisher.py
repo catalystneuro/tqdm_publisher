@@ -24,10 +24,9 @@ class TQDMPublisher(base_tqdm):
         Subscribe to updates from the progress bar.
 
         This method assigns a unique ID to the given callback and stores it in an internal
-        dictionary. It allows the callback to be referenced and activated in the overriden
+        dictionary. It allows the callback to be referenced and activated in the overridden
         update function for TQDM. The unique callback ID is returned, which can be used
         for future operations such as deregistering the callback.
-
 
         Parameters
         ----------
@@ -96,8 +95,8 @@ class TQDMPublisher(base_tqdm):
         number of subscribers might grow large or change frequently. Unsubscribing callbacks
         when they are no longer needed can help prevent memory leaks and other performance issues.
         """
-        try:
-            del self.callbacks[callback_id]
-            return True
-        except KeyError:
+        if callback_id not in self.callbacks:
             return False
+
+        del self.callbacks[callback_id]
+        return True
