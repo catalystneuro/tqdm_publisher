@@ -9,7 +9,12 @@ server_path = demo_base_path/ "server.py"
 
 def main():
 
+    if (len(sys.argv) <= 1):
+        print("No command provided. Please specify a command (e.g. 'demo').")
+        return
+    
     command = sys.argv[1]
+
     flags_list = sys.argv[2:]
 
     client_flag = "--client" in flags_list

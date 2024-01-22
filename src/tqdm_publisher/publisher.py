@@ -2,6 +2,8 @@
 from tqdm import tqdm as base_tqdm
 from uuid import uuid4
 
+from typing import Union
+
 # This class is a subclass of tqdm that allows for an arbitary number of callbacks to be registered
 class TQDMPublisher(base_tqdm):
 
@@ -11,12 +13,12 @@ class TQDMPublisher(base_tqdm):
 
 
     # Override the update method to call callbacks 
-    def update(self, n=1):
+    def update(self, n: int=1) -> Union[bool, None]:
         displayed = super().update(n)
-        for id in list(self.callbacks):
-            callback = self.callbacks.get(id)
-            if callback:
-                callback(self.format_dict)
+
+        for callback in self.callbacks.values():
+            callback(self.format_dict)
+
         return displayed
 
 
