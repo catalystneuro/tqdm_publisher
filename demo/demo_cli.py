@@ -2,7 +2,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-demo_base_path = Path(__file__).parent / "demo"
+demo_base_path = Path(__file__).parent
 
 client_path = demo_base_path / "client.html"
 server_path = demo_base_path/ "server.py"
