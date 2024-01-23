@@ -4,7 +4,7 @@ from uuid import uuid4
 
 from typing import Union
 
-# This class is a subclass of tqdm that allows for an arbitary number of callbacks to be registered
+# This class is a subclass of tqdm that allows for an arbitrary number of callbacks to be registered
 class TQDMPublisher(base_tqdm):
 
     def __init__(self, *args, **kwargs):
