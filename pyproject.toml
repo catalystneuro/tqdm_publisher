@@ -45,4 +45,4 @@ demo = [
 "Bug Tracker" = "https://github.com/catalystneuro/tqdm_publisher/issues"
 
 [project.gui-scripts]
-tqdm_publisher = "cli:main"
+tqdm_publisher = "demo.demo_cli:main"
