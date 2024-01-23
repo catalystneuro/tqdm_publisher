@@ -46,3 +46,29 @@ demo = [
 
 [project.gui-scripts]
 tqdm_publisher = "demo.demo_cli:main"
+
+[tool.black]
+line-length = 120
+target-version = ['py39', 'py310', 'py311']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  \.toml
+  |\.yml
+  |\.txt
+  |\.sh
+  |\.git
+  |\.ini
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+reverse_relative = true
+known_first_party = ["tqdm_publisher"]
