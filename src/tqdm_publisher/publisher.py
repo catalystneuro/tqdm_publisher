@@ -1,25 +1,22 @@
-
-from tqdm import tqdm as base_tqdm
+from typing import Union
 from uuid import uuid4
 
-from typing import Union
+from tqdm import tqdm as base_tqdm
+
 
 class TQDMPublisher(base_tqdm):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.callbacks = {}
 
-
     # Override the update method to run callbacks
-    def update(self, n: int=1) -> Union[bool, None]:
+    def update(self, n: int = 1) -> Union[bool, None]:
         displayed = super().update(n)
 
         for callback in self.callbacks.values():
             callback(self.format_dict)
 
         return displayed
-
 
     def subscribe(self, callback: callable):
         """
@@ -34,13 +31,13 @@ class TQDMPublisher(base_tqdm):
         ----------
         callback : callable
             A callable object (like a function) that will be called back by this object.
-            The callback should be able to be invoked with a single argument, the progress 
+            The callback should be able to be invoked with a single argument, the progress
             bar's format_dict.
 
         Returns
         -------
         str
-            A unique identifier for the callback. This ID is a UUID string and can be used 
+            A unique identifier for the callback. This ID is a UUID string and can be used
             to reference the registered callback in future operations.
 
         Examples
@@ -56,20 +53,20 @@ class TQDMPublisher(base_tqdm):
         callback_id = str(uuid4())
         self.callbacks[callback_id] = callback
         return callback_id
-    
+
     def unsubscribe(self, callback_id: str):
         """
         Unsubscribe a previously registered callback from the progress bar updates.
 
         This method removes the callback associated with the given unique ID from the internal
-        dictionary. It is used to deregister callbacks that were previously added via the 
-        `subscribe` method. Once a callback is removed, it will no longer be called during 
+        dictionary. It is used to deregister callbacks that were previously added via the
+        `subscribe` method. Once a callback is removed, it will no longer be called during
         the progress bar's update events.
 
         Parameters
         ----------
         callback_id : str
-            The unique identifier of the callback to be unsubscribed. This is the same UUID string 
+            The unique identifier of the callback to be unsubscribed. This is the same UUID string
             that was returned by the `subscribe` method when the callback was registered.
 
         Returns

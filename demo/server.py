@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 
-import random
 import asyncio
+import json
+import random
+import threading
 from typing import List
+from uuid import uuid4
+
+import websockets
 
 from tqdm_publisher import TQDMPublisher
 
-import websockets
-import threading
-from uuid import uuid4
-
-import json
 
 async def sleep_func(sleep_duration: float = 1) -> float:
     await asyncio.sleep(delay=sleep_duration)
@@ -28,31 +28,28 @@ def create_tasks():
     return tasks
 
 
-class ProgressHandler():
-
+class ProgressHandler:
     def __init__(self):
         self.started = False
         self.callbacks = []
         self.callback_ids = []
 
-    def subscribe(self, callback):            
+    def subscribe(self, callback):
         self.callbacks.append(callback)
 
-        if (hasattr(self, 'progress_bar')):
+        if hasattr(self, "progress_bar"):
             self._subscribe(callback)
-
 
     def unsubscribe(self, callback_id):
         self.progress_bar.unsubscribe(callback_id)
 
-    def clear(self):     
-        self.callbacks = []   
+    def clear(self):
+        self.callbacks = []
         self._clear()
 
     def _clear(self):
-
         for callback_id in self.callback_ids:
-             self.unsubscribe(callback_id)
+            self.unsubscribe(callback_id)
 
         self.callback_ids = []
 
@@ -65,15 +62,12 @@ class ProgressHandler():
         self.clear()
         self.thread.join()
 
-
     def _subscribe(self, callback):
         callback_id = self.progress_bar.subscribe(callback)
         self.callback_ids.append(callback_id)
 
-
     async def run(self):
-
-        if (hasattr(self, 'progress_bar')):
+        if hasattr(self, "progress_bar"):
             print("Progress bar already running")
             return
 
@@ -82,35 +76,32 @@ class ProgressHandler():
 
         for callback in self.callbacks:
             self._subscribe(callback)
-    
+
         for f in self.progress_bar:
             await f
 
         self._clear()
         del self.progress_bar
 
-
-
     def thread_loop(self):
         while self.started:
             asyncio.run(self.run())
-            
-    def start(self):
 
-        if (self.started):
+    def start(self):
+        if self.started:
             return
-        
+
         self.started = True
 
-        self.thread = threading.Thread(target=self.thread_loop) # Start infinite loop of progress bar thread
+        self.thread = threading.Thread(target=self.thread_loop)  # Start infinite loop of progress bar thread
         self.thread.start()
 
 
 progress_handler = ProgressHandler()
 
+
 class WebSocketHandler:
     def __init__(self):
-
         self.clients = {}
 
         # Initialize with any state you need
@@ -126,9 +117,9 @@ class WebSocketHandler:
 
     async def handler(self, websocket):
         id = str(uuid4())
-        self.clients[id] = websocket # Register client connection
+        self.clients[id] = websocket  # Register client connection
 
-        progress_handler.start() # Start if not started
+        progress_handler.start()  # Start if not started
 
         def on_progress(info):
             task = asyncio.create_task(websocket.send(json.dumps(info)))
@@ -143,9 +134,8 @@ class WebSocketHandler:
         finally:
             # This is called when the connection is closed
             del self.clients[id]
-            if (len(self.clients) == 0):
+            if len(self.clients) == 0:
                 progress_handler.stop()
-
 
 
 async def spawn_server():
@@ -153,8 +143,10 @@ async def spawn_server():
     async with websockets.serve(handler, "", 8000):
         await asyncio.Future()  # run forever
 
+
 def main():
     asyncio.run(spawn_server())
+
 
 if __name__ == "__main__":
     main()

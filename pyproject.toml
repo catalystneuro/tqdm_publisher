@@ -37,8 +37,8 @@ dependencies = [
 
 [project.optional-dependencies]
 test = [
-    "pytest", 
-    "pytest-asyncio", 
+    "pytest",
+    "pytest-asyncio",
     "pytest-cov"
 ]
 
