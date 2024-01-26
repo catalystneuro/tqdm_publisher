@@ -1,6 +1,6 @@
 from tqdm_publisher import TQDMPublisher
 import pytest
-from utils import create_tasks
+from tqdm_publisher.testing import create_tasks
 import asyncio
 
 def test_initialization():
