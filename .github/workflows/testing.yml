@@ -1,0 +1,41 @@
+name: Full Tests
+on: workflow_call
+
+jobs:
+  run:
+    name: ${{ matrix.os }} Python ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: s-weigand/setup-conda@v1
+      - uses: actions/checkout@v3
+      - run: git fetch --prune --unshallow --tags
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Global Setup
+        run: |
+          python -m pip install -U pip  # Official recommended way
+          pip install pytest-xdist
+
+      - name: Install tqdm_publisher with minimal requirements
+        run: pip install .[test]
+
+      - name: Run full pytest with coverage
+        run: pytest -rsx -n auto --dist loadscope --cov=./ --cov-report xml:./codecov.xml
+      
+      - name: Upload full coverage to Codecov
+        if: ${{ matrix.python-version == '3.9' && matrix.os == 'ubuntu-latest' }}
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./codecov.xml
+          flags: unittests
+          name: codecov-umbrella
+          yml: ./codecov.yml

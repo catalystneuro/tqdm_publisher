@@ -1,0 +1,27 @@
+name: Daily workflows
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 16 * * *"  # Daily at noon EST
+
+jobs:
+
+  run-daily-tests:
+    uses: catalystneuro/tqdm_publisher/.github/workflows/testing.yml@main
+
+  notify:
+    runs-on: ubuntu-latest
+    needs: [run-daily-tests]
+    if: ${{ always() && contains(needs.*.result, 'failure') }}
+    steps:
+    - uses: dawidd6/action-send-mail@v3
+      with:
+        server_address: smtp.gmail.com
+        server_port: 465  # TSL
+        username: ${{ secrets.MAIL_USERNAME }}
+        password: ${{ secrets.MAIL_PASSWORD }}
+        subject: TQDM Publisher Daily Test Failure
+        to: garrett.flynn@catalystneuro.com,cody.baker@catalystneuro.com  # add more with commas, no separation
+        from: TQDM Publisher
+        body: "The daily workflow for TQDM Publisher failed: please check status at https://github.com/CatalystNeuro/tqdm_publisher/actions/workflows/dailies.yml"
