@@ -1,6 +1,7 @@
 import asyncio
 import random
 
+
 async def sleep_func(sleep_duration: float = 1) -> float:
     await asyncio.sleep(delay=sleep_duration)
 

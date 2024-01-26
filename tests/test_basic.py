@@ -1,7 +1,10 @@
-from tqdm_publisher import TQDMPublisher
-import pytest
-from tqdm_publisher.testing import create_tasks
 import asyncio
+
+import pytest
+
+from tqdm_publisher import TQDMPublisher
+from tqdm_publisher.testing import create_tasks
+
 
 def test_initialization():
     publisher = TQDMPublisher()
@@ -15,20 +18,22 @@ async def test_subscription_and_callback_execution():
 
     def test_callback(identifier, data):
         nonlocal n_callback_executions
-        
+
         if identifier not in n_callback_executions:
             n_callback_executions[identifier] = 0
 
         n_callback_executions[identifier] += 1
 
-        assert 'n' in data and 'total' in data
+        assert "n" in data and "total" in data
 
     tasks = create_tasks()
     publisher = TQDMPublisher(asyncio.as_completed(tasks), total=len(tasks))
 
     n_subscriptions = 10
     for i in range(n_subscriptions):
-        callback_id = publisher.subscribe(lambda data, i=i: test_callback(i, data)) # Creates a new scoped i value for subscription
+        callback_id = publisher.subscribe(
+            lambda data, i=i: test_callback(i, data)
+        )  # Creates a new scoped i value for subscription
         assert callback_id in publisher.callbacks
 
     # Simulate an update to trigger the callback
@@ -37,8 +42,9 @@ async def test_subscription_and_callback_execution():
 
     assert len(n_callback_executions) == n_subscriptions
 
-    for (identifier, n_executions) in n_callback_executions.items():
+    for identifier, n_executions in n_callback_executions.items():
         assert n_executions > 1
+
 
 def test_unsubscription():
     def dummy_callback(data):

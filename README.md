@@ -23,7 +23,7 @@ async def sleep_func(sleep_duration = 1):
     await asyncio.sleep(delay=sleep_duration)
 
 async def run_multiple_sleeps(sleep_durations):
-    
+
     tasks = []
 
     for sleep_duration in sleep_durations:
