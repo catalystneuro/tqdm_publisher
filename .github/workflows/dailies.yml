@@ -22,6 +22,6 @@ jobs:
         username: ${{ secrets.MAIL_USERNAME }}
         password: ${{ secrets.MAIL_PASSWORD }}
         subject: TQDM Publisher Daily Test Failure
-        to: garrett.flynn@catalystneuro.com, cody.baker@catalystneuro.com  # add more with commas and space
+        to: cody.baker@catalystneuro.com  # add more with commas?, TODO: debugging, add back in garrett.flynn@catalystneuro.com
         from: TQDM Publisher
         body: "The daily workflow for TQDM Publisher failed: please check status at https://github.com/CatalystNeuro/tqdm_publisher/actions/workflows/dailies.yml"
