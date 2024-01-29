@@ -39,3 +39,4 @@ jobs:
           flags: unittests
           name: codecov-umbrella
           yml: ./codecov.yml
+          verbose: true
