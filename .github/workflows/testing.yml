@@ -28,11 +28,11 @@ jobs:
         run: pip install .[test]
 
       - name: Run full pytest with coverage
-        run: pytest -rsx --cov=./src --cov-report xml:./codecov.xml
+        run: pytest -vv -rsx --cov=./src --cov-report xml:./codecov.xml
 
       - name: Upload full coverage to Codecov
         if: ${{ matrix.python-version == '3.11' && matrix.os == 'ubuntu-latest' }}
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: ./codecov.xml
