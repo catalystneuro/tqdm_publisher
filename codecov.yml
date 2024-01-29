@@ -15,5 +15,5 @@ coverage:
     patch: off
 
 ignore:
-  - "./tests/"
-  - "./demo/"
+  - "tests"
+  - "demo"
