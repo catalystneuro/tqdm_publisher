@@ -29,7 +29,7 @@ jobs:
           pip install pytest-xdist
 
       - name: Install tqdm_publisher with minimal requirements
-        run: pip install .[test]
+        run: pip install -e .[test]  # use editable mode for coverage
 
       - name: Run full pytest with coverage
         run: |
