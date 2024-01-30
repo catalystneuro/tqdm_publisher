@@ -38,8 +38,8 @@ async def run_multiple_sleeps(sleep_durations):
 
     progress_bar.unsubscribe(callback_id)
 
-n = 10**5
-sleep_durations = [random.uniform(0, 5.0) for _ in range(n)]
+number_of_tasks = 10**5
+sleep_durations = [random.uniform(0, 5.0) for _ in range(number_of_tasks)]
 asyncio.run(run_multiple_sleeps(sleep_durations=sleep_durations))
 ```
 
