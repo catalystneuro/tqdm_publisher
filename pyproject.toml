@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 source = "vcs"
 
 [tool.coverage.run]
-concurrency = ["gevent"]
+concurrency = ["thread", "gevent"]
 
 [project]
 name = "tqdm_publisher"
