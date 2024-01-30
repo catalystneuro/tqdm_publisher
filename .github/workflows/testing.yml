@@ -29,7 +29,9 @@ jobs:
           pip install pytest-xdist
 
       - name: Install tqdm_publisher with minimal requirements
-        run: pip install .[test]
+        run: |
+          pip install .[test]
+          pip install gevent  # CI only
 
       - name: Run full pytest with coverage
         run: |
