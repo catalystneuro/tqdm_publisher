@@ -7,10 +7,10 @@ async def sleep_func(sleep_duration: float = 1) -> float:
 
 
 def create_tasks():
-    n = 10**5
-    sleep_durations = [random.uniform(0, 5.0) for _ in range(n)]
-    tasks = []
+    number_of_tasks = 10**5
+    sleep_durations = [random.uniform(0, 5.0) for _ in range(number_of_tasks)]
 
+    tasks = list()
     for sleep_duration in sleep_durations:
         task = asyncio.create_task(sleep_func(sleep_duration=sleep_duration))
         tasks.append(task)
