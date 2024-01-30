@@ -14,7 +14,7 @@ authors = [
 ]
 description = "Extends the base tqdm progress bar with a subscribe method that can expose updates to external (potentially non-Python) processes."
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 license = {file = "license.txt"}
 
 keywords = ["tqdm", "progressbar", "progressmeter", "progress", "bar", "meter", "time", "pubsub", "publish-subscribe pattern"]
