@@ -1,1 +1,1 @@
-from .publisher import TQDMPublisher
+from ._publisher import TQDMPublisher
