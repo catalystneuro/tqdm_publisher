@@ -30,7 +30,7 @@ jobs:
 
       - name: Install tqdm_publisher with minimal requirements
         run: |
-          pip install .[test]
+          pip install -e .[test]
           pip install gevent  # CI only
 
       - name: Run full pytest with coverage
