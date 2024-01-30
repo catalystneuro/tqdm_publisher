@@ -33,7 +33,7 @@ jobs:
 
       - name: Run full pytest with coverage
         run: |
-          pytest -vv -rsx --cov=./ --cov-report xml:./codecov.xml
+          pytest -vv -rsx --cov=./src --cov-report xml:./codecov.xml
           cat ./codecov.xml
 
       - name: Upload full coverage to Codecov
