@@ -59,4 +59,3 @@ def test_unsubscription():
 
     result = publisher.unsubscribe(callback_id)
     assert result == False
-
