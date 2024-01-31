@@ -56,3 +56,6 @@ def test_unsubscription():
     result = publisher.unsubscribe(callback_id)
     assert result == True
     assert callback_id not in publisher.callbacks
+
+    result = publisher.unsubscribe(callback_id)
+    assert result == False
