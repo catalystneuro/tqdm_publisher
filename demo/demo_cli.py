@@ -6,6 +6,7 @@ demo_base_path = Path(__file__).parent
 
 client_path = demo_base_path / "client.html"
 server_path = demo_base_path / "server.py"
+parallel_script_path = demo_base_path / "parallel_script.py"
 
 
 def main():
@@ -32,6 +33,9 @@ def main():
 
         if flags["server"]:
             subprocess.run(["python", server_path])
+
+    elif command == "parallel":
+        subprocess.run(["python", parallel_script_path])
 
     else:
         print(f"{command} is an invalid command.")
