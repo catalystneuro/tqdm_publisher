@@ -30,6 +30,7 @@ def create_tasks():
 
 class ProgressHandler:
     def __init__(self):
+        self.id = str(uuid4())
         self.started = False
         self.callbacks = []
         self.callback_ids = []
@@ -121,8 +122,19 @@ class WebSocketHandler:
 
         progress_handler.start()  # Start if not started
 
-        def on_progress(info):
-            task = asyncio.create_task(websocket.send(json.dumps(info)))
+        await websocket.send(json.dumps({
+            "command": "initialize",
+            "payload": [ progress_handler.id ]
+        }))
+
+        def on_progress(n, total, **kwargs):
+            task = asyncio.create_task(websocket.send(json.dumps(dict(
+                command="update",
+                payload=dict(
+                    id=progress_handler.id,
+                    data=dict(n=n, total=total))))
+                )
+            )
             task.add_done_callback(self.handle_task_result)  # Handle task result or exception
 
         progress_handler.subscribe(on_progress)

@@ -77,7 +77,7 @@
             <i><small>Create multiple progress bars to test concurrent subscriptions</small></i>
         </div>
         <button id="one">Subscribe to Global Bar</button>
-        <button id="many">Subscribe to Parallel Bars</button>
+        <!-- <button id="many">Subscribe to Parallel Bars</button> -->
 
     </header>
 
@@ -168,14 +168,14 @@ oneButton.addEventListener('click', () => {
 })
 
 
-const manyButton = document.querySelector('#many');
-manyButton.addEventListener('click', () => {
-    const client = new ProgressClient();
-    client.send({
-        command: 'subscribe',
-        payload: 'parallel'
-    })
-})
+// const manyButton = document.querySelector('#many');
+// manyButton.addEventListener('click', () => {
+//     const client = new ProgressClient();
+//     client.send({
+//         command: 'subscribe',
+//         payload: 'parallel'
+//     })
+// })
 
 </script>
 
