@@ -40,18 +40,31 @@
         }
 
         .progress {
+            position: relative;
             width: 100%;
             height: 20px;
             background-color: #ddd;
         }
 
-
+        .progress label {
+            position: absolute;
+            left: 10px;
+            top: 0;
+            transform: translateY(20%);
+            font-size: 0.8rem;
+        }
 
         .progress div {
             height: 100%;
             background-color: #4caf50;
             width: 0%;
         }
+
+        .progress.closed div {
+            background-color: #af4c4c;
+        }
+
+
 
     </style>
 
@@ -63,7 +76,9 @@
             <h1>tqdm_progress</h1>
             <i><small>Create multiple progress bars to test concurrent subscriptions</small></i>
         </div>
-        <button>Create Progress Bar</button>
+        <button id="one">Subscribe to Global Bar</button>
+        <button id="many">Subscribe to Parallel Bars</button>
+
     </header>
 
     <div id="bars">
@@ -77,32 +92,89 @@
     const bars = document.querySelector('#bars');
 
     class ProgressClient {
+
+        #queue = [];
+
+        #elements = {};
+
+        #close = () => {
+            Object.values(this.#elements).forEach(element => element.remove());
+            this.#elements = {};
+        }
+
         constructor() {
             this.socket = new WebSocket('ws://localhost:8000');
 
-            this.element = document.createElement('div');
-            this.element.classList.add('progress');
-            const progress = document.createElement('div');
-            this.element.appendChild(progress);
-            bars.appendChild(this.element);
 
-            this.socket.addEventListener('message', function (event) {
-                const data = JSON.parse(event.data);
-                progress.style.width = 100 * (data.n / data.total) + '%';
+            this.socket.addEventListener('message', (event) => {
+                const { command, payload } = JSON.parse(event.data);
+                if (command === 'update') {
+                    const { id, data } = payload
+                    const element = this.#elements[id];
+                    element.children[1].style.width = 100 * (data.n / data.total) + '%';
+                }
+
+                else if (command === 'initialize') {
+
+                    payload.forEach((id) => {
+                        const label = document.createElement('label');
+                        label.innerText = id;
+                        const element = document.createElement('div');
+                        element.className = 'progress';
+                        const progress = document.createElement('div');
+                        element.append(label, progress);
+                        bars.appendChild(element);
+                        this.#elements[id] = element;
+                    })
+
+                    console.log(this.#elements)
+
+                } else {
+                    console.log('Unknown command', command, payload);
+                }
             });
 
+
+            this.socket.addEventListener('close', () => {
+                Object.values(this.#elements).forEach(e => {
+                    console.log(e, 'closed')
+                    e.classList.add('closed')
+                })
+            })
+
+            this.socket.addEventListener('open', () => this.#queue.forEach(message => this.send(message)))
+
+        }
+
+        send(message) {
+            if (this.socket.readyState !== WebSocket.OPEN) this.#queue.push(message);
+            else this.socket.send(JSON.stringify(message));
         }
 
         close() {
             this.socket.close();
-            this.element.remove()
+            this.#close();
         }
 
     }
 
-const button = document.querySelector('button');
-button.addEventListener('click', () => {
+const oneButton = document.querySelector('#one');
+oneButton.addEventListener('click', () => {
     const client = new ProgressClient();
+    client.send({
+        command: 'subscribe',
+        payload: 'global'
+    })
+})
+
+
+const manyButton = document.querySelector('#many');
+manyButton.addEventListener('click', () => {
+    const client = new ProgressClient();
+    client.send({
+        command: 'subscribe',
+        payload: 'parallel'
+    })
 })
 
 </script>

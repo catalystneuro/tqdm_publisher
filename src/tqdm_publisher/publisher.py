@@ -13,8 +13,9 @@ class TQDMPublisher(base_tqdm):
     def update(self, n: int = 1) -> Union[bool, None]:
         displayed = super().update(n)
 
+        format_dict = self.format_dict
         for callback in self.callbacks.values():
-            callback(self.format_dict)
+            callback(**format_dict)
 
         return displayed
 

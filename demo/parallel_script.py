@@ -35,11 +35,14 @@ def _run_sleep_in_subprocess(args: Tuple[int, int]):
 
     url = f'http://localhost:{PORT}'
 
-    def to_main_process(format_dict):
-
+    def to_main_process(n: int, total: int, **kwargs):
+        
         json_data = json.dumps(dict(
             id=str(id),
-            update=format_dict
+            update=dict(
+                n = n,
+                total = total
+            )
         ))
 
         requests.post(url, data=json_data, headers={'Content-Type': 'application/json'})

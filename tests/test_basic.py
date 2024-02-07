@@ -16,7 +16,7 @@ def test_initialization():
 async def test_subscription_and_callback_execution():
     n_callback_executions = dict()
 
-    def test_callback(identifier, data):
+    def test_callback(identifier, **kwargs):
         nonlocal n_callback_executions
 
         if identifier not in n_callback_executions:
@@ -24,7 +24,7 @@ async def test_subscription_and_callback_execution():
 
         n_callback_executions[identifier] += 1
 
-        assert "n" in data and "total" in data
+        assert "n" in kwargs and "total" in kwargs
 
     tasks = create_tasks()
     publisher = TQDMPublisher(asyncio.as_completed(tasks), total=len(tasks))
@@ -47,7 +47,7 @@ async def test_subscription_and_callback_execution():
 
 
 def test_unsubscription():
-    def dummy_callback(data):
+    def dummy_callback(**kwargs):
         pass
 
     tasks = []
