@@ -122,17 +122,14 @@ class WebSocketHandler:
 
         progress_handler.start()  # Start if not started
 
-        await websocket.send(json.dumps({
-            "command": "initialize",
-            "payload": [ progress_handler.id ]
-        }))
+        await websocket.send(json.dumps({"command": "initialize", "payload": [progress_handler.id]}))
 
         def on_progress(n, total, **kwargs):
-            task = asyncio.create_task(websocket.send(json.dumps(dict(
-                command="update",
-                payload=dict(
-                    id=progress_handler.id,
-                    data=dict(n=n, total=total))))
+            task = asyncio.create_task(
+                websocket.send(
+                    json.dumps(
+                        dict(command="update", payload=dict(id=progress_handler.id, data=dict(n=n, total=total)))
+                    )
                 )
             )
             task.add_done_callback(self.handle_task_result)  # Handle task result or exception

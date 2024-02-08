@@ -3,16 +3,17 @@
 # HTTP server addition
 import http.server
 import json
+import signal
 import socket
 import socketserver
-import signal
 import sys
+
 
 def find_free_port():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind(("", 0))  # Bind to a free port provided by the host
         return s.getsockname()[1]  # Return the port number assigned
-    
+
 
 def GLOBAL_CALLBACK(id, n, total):
     print("Global Update", id, f"{n}/{total}")
@@ -30,7 +31,6 @@ if __name__ == "__main__":
     else:
         PORT = find_free_port()
 
-
     class MyHttpRequestHandler(http.server.SimpleHTTPRequestHandler):
 
         def do_POST(self):
@@ -43,15 +43,12 @@ if __name__ == "__main__":
     with socketserver.TCPServer(("", PORT), MyHttpRequestHandler) as httpd:
 
         def signal_handler(signal, frame):
-            print('\n\nInterrupt signal received. Closing server...')
+            print("\n\nInterrupt signal received. Closing server...")
             httpd.server_close()
             httpd.socket.close()
-            print('Server closed.')
+            print("Server closed.")
 
         signal.signal(signal.SIGINT, signal_handler)
 
-
         print(f"Serving HTTP on port {PORT}")
         httpd.serve_forever()
-
-        

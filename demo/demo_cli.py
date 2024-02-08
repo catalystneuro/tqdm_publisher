@@ -1,8 +1,8 @@
+import signal
 import subprocess
 import sys
-from pathlib import Path
 import time
-import signal
+from pathlib import Path
 
 demo_base_path = Path(__file__).parent
 
@@ -14,16 +14,20 @@ parallel_client_path = demo_base_path / "parallel" / "client.py"
 # List to keep track of subprocesses
 subprocesses = []
 
+
 def close_subprocesses():
     for process in subprocesses:
         process.terminate()  # Send SIGTERM to subprocess
     sys.exit(0)
 
+
 def signal_handler(signal, frame):
-    print('Interrupt signal received. Shutting down subprocesses...')
+    print("Interrupt signal received. Shutting down subprocesses...")
     close_subprocesses()
 
+
 signal.signal(signal.SIGINT, signal_handler)
+
 
 def main():
     if len(sys.argv) <= 1:
@@ -41,7 +45,7 @@ def main():
     flags = dict(
         client=not server_flag or both_flags,
         server=not client_flag or both_flags,
-        both=(client_flag and server_flag) or (not client_flag and not server_flag)
+        both=(client_flag and server_flag) or (not client_flag and not server_flag),
     )
 
     if command == "demo":
@@ -78,17 +82,17 @@ def main():
         if flags["server"]:
             server_args = ["python", parallel_server_path]
             if flags["both"]:
-                server_args += ["--port",  str(PORT), "--host", HOST]
+                server_args += ["--port", str(PORT), "--host", HOST]
             subprocess.run(server_args)
 
     else:
         print(f"{command} is an invalid command.")
 
+
 if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt as e:
-        print('\n\nInterrupt signal received. Shutting down subprocesses...')
+        print("\n\nInterrupt signal received. Shutting down subprocesses...")
     finally:
         close_subprocesses()
-

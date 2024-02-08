@@ -5,6 +5,7 @@ import http.server
 import json
 import socket
 import socketserver
+import sys
 import threading
 import time
 import uuid
@@ -12,9 +13,9 @@ from concurrent.futures import ProcessPoolExecutor
 from typing import List, Tuple
 
 import requests
-import sys
 
 from tqdm_publisher import TQDMPublisher
+
 
 def _run_sleep_in_subprocess(args: Tuple[int, int]):
     """The operation to run on each subprocess."""
@@ -34,14 +35,8 @@ def _run_sleep_in_subprocess(args: Tuple[int, int]):
     if url:
 
         def to_main_process(n: int, total: int, **kwargs):
-            
-            json_data = json.dumps(dict(
-                id=str(id),
-                data=dict(
-                    n = n,
-                    total = total
-                )
-            ))
+
+            json_data = json.dumps(dict(id=str(id), data=dict(n=n, total=total)))
 
             requests.post(url, data=json_data, headers={"Content-Type": "application/json"})
 
@@ -49,7 +44,6 @@ def _run_sleep_in_subprocess(args: Tuple[int, int]):
 
     for _ in sub_progress_bar:
         time.sleep(0.5)
-
 
 
 if __name__ == "__main__":
@@ -64,13 +58,12 @@ if __name__ == "__main__":
     if port_flag:
         port_index = flags_list.index("--port")
         PORT = flags_list[port_index + 1]
-    
-    if (host_flag):
+
+    if host_flag:
         host_index = flags_list.index("--host")
         HOST = flags_list[host_index + 1]
     else:
         HOST = "localhost"
-
 
     URL = f"http://{HOST}:{PORT}" if port_flag else None
 
