@@ -1,1 +1,3 @@
-from .publisher import TQDMPublisher
+from ._publisher import TQDMPublisher
+
+__all__ = ["TQDMPublisher"]
