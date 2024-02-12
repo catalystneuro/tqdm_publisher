@@ -15,7 +15,11 @@ pip install tqdm_publisher
 ## Getting Started
 
 ### Basic Usage
-To convert an existing TQDM progress bar into a `TQDMPublisher`, simply swap the `tqdm` and `TQDMPublisher` constructors. Then, before iterating, subscribe to updates from the `TQDMPublisher` instance using the `subscribe` method.
+To convert an existing TQDM progress bar into a `TQDMPublisher`, simply swap the `tqdm` and `TQDMPublisher` constructors. 
+
+You'll need to declare a callback function to handle progress updates, which you can declare wherever you like.
+
+Then, before iterating, subscribe your callback to the `TQDMPublisher` updates using the `subscribe` method.
 
 #### Original Code
 ```python
@@ -59,7 +63,7 @@ from tqdm_publisher import TQDMPublisher
 async def sleep_func(sleep_duration = 1):
     await asyncio.sleep(delay=sleep_duration)
 
-async def run_multiple_sleeps(sleep_durations):
+async def run_multiple_sleeps(sleep_durations, on_update):
 
     tasks = []
 
@@ -71,7 +75,7 @@ async def run_multiple_sleeps(sleep_durations):
     progress_bar = TQDMPublisher(asyncio.as_completed(tasks), total=len(tasks))
 
     # Subscribe to updates from the progress bar
-    callback_id = progress_bar.subscribe(lambda info: print('Progress Update', info))
+    callback_id = progress_bar.subscribe(on_update)
 
     # Start the tasks
     for f in progress_bar:
@@ -80,9 +84,14 @@ async def run_multiple_sleeps(sleep_durations):
     # Unsubscribe from updates (optional)
     progress_bar.unsubscribe(callback_id)
 
+# Define a callback function to handle progress updates
+main_callback = lambda info: print('Progress Update', info)
+
 number_of_tasks = 10**5
 sleep_durations = [random.uniform(0, 5.0) for _ in range(number_of_tasks)]
-asyncio.run(run_multiple_sleeps(sleep_durations=sleep_durations))
+
+# Pass your callback function to the coroutine
+asyncio.run(run_multiple_sleeps(sleep_durations=sleep_durations, on_update=main_callback))
 ```
 
 ## Demo
