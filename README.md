@@ -12,7 +12,44 @@ This is useful if you want to use `tqdm` to track the progress of a long-running
 pip install tqdm_publisher
 ```
 
-## Usage
+## Getting Started
+
+### Basic Usage
+To convert an existing TQDM progress bar into a `TQDMPublisher`, simply swap the `tqdm` and `TQDMPublisher` constructors. Then, before iterating, subscribe to updates from the `TQDMPublisher` instance using the `subscribe` method.
+
+#### Original Code
+```python
+import random
+import asyncio
+
+from tqdm import tqdm
+
+async def sleep_func(sleep_duration = 1):
+    await asyncio.sleep(delay=sleep_duration)
+
+async def run_multiple_sleeps(sleep_durations):
+
+    tasks = []
+
+    # Create a list of tasks to run
+    for sleep_duration in sleep_durations:
+        task = asyncio.create_task(sleep_func(sleep_duration=sleep_duration))
+        tasks.append(task)
+
+    # Create a progress bar to track the tasks
+    progress_bar = tqdm(asyncio.as_completed(tasks), total=len(tasks))
+
+    # Iterate over the progress bar to run the tasks
+    for f in progress_bar:
+        await f
+        
+number_of_tasks = 10**5
+sleep_durations = [random.uniform(0, 5.0) for _ in range(number_of_tasks)]
+asyncio.run(run_multiple_sleeps(sleep_durations=sleep_durations))
+```
+
+#### Modified Code
+
 ```python
 import random
 import asyncio
@@ -30,12 +67,17 @@ async def run_multiple_sleeps(sleep_durations):
         task = asyncio.create_task(sleep_func(sleep_duration=sleep_duration))
         tasks.append(task)
 
+    # Replace the progress bar with a TQDMPublisher
     progress_bar = TQDMPublisher(asyncio.as_completed(tasks), total=len(tasks))
+
+    # Subscribe to updates from the progress bar
     callback_id = progress_bar.subscribe(lambda info: print('Progress Update', info))
 
+    # Start the tasks
     for f in progress_bar:
         await f
 
+    # Unsubscribe from updates (optional)
     progress_bar.unsubscribe(callback_id)
 
 number_of_tasks = 10**5
