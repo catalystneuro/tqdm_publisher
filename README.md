@@ -15,7 +15,7 @@ pip install tqdm_publisher
 ## Getting Started
 
 ### Basic Usage
-To convert an existing TQDM progress bar into a `TQDMPublisher`, simply swap the `tqdm` and `TQDMPublisher` constructors. 
+To convert an existing TQDM progress bar into a `TQDMPublisher`, simply swap the `tqdm` and `TQDMPublisher` constructors.
 
 You'll need to declare a callback function to handle progress updates, which you can declare wherever you like.
 
@@ -46,7 +46,7 @@ async def run_multiple_sleeps(sleep_durations):
     # Iterate over the progress bar to run the tasks
     for f in progress_bar:
         await f
-        
+
 number_of_tasks = 10**5
 sleep_durations = [random.uniform(0, 5.0) for _ in range(number_of_tasks)]
 asyncio.run(run_multiple_sleeps(sleep_durations=sleep_durations))
