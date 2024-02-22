@@ -29,11 +29,11 @@ jobs:
           pip install pytest-xdist
 
       - name: Install tqdm_publisher with minimal requirements
-        run: pip install -e .[test]  # use editable mode for coverage
+        run: pip install .[test]
 
       - name: Run full pytest with coverage
         run: |
-          pytest -vv -rsx --cov=./src --cov-report xml:./codecov.xml
+          pytest -vv -rsx --cov=tqdm_publisher --cov-report xml:./codecov.xml
           cat ./codecov.xml
 
       - name: Upload full coverage to Codecov
