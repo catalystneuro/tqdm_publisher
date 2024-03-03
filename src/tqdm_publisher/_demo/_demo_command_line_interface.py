@@ -1,3 +1,6 @@
+"""Command line interface for running the TQDM Publisher demo."""
+
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -8,7 +11,8 @@ client_path = demo_base_path / "client.html"
 server_path = demo_base_path / "server.py"
 
 
-def main():
+def _demo_command_line_interface():
+    """Should be called only through the package entrypoint."""
     if len(sys.argv) <= 1:
         print("No command provided. Please specify a command (e.g. 'demo').")
         return
@@ -28,14 +32,14 @@ def main():
 
     if command == "demo":
         if flags["client"]:
-            subprocess.run(["open", client_path])
+            if "win" in sys.platform:
+                # Windows has some trouble executing using the correct base entrypoint
+                os.system(f'start "" "{client_path}"')
+            else:
+                subprocess.run(["open", client_path])
 
         if flags["server"]:
             subprocess.run(["python", server_path])
 
     else:
         print(f"{command} is an invalid command.")
-
-
-if __name__ == "__main__":
-    main()

@@ -1,10 +1,7 @@
-#!/usr/bin/env python
-
 import asyncio
 import json
 import random
 import threading
-from typing import List
 from uuid import uuid4
 
 import websockets
@@ -12,17 +9,23 @@ import websockets
 from tqdm_publisher import TQDMPublisher
 
 
-async def sleep_func(sleep_duration: float = 1) -> float:
+async def _async_sleep(sleep_duration: float) -> None:
     await asyncio.sleep(delay=sleep_duration)
 
 
-def create_tasks():
-    n = 10**5
-    sleep_durations = [random.uniform(0, 5.0) for _ in range(n)]
-    tasks = []
+def create_tasks() -> None:
+    """
+    Emulate the completion time of imaginary tasks.
 
-    for sleep_duration in sleep_durations:
-        task = asyncio.create_task(sleep_func(sleep_duration=sleep_duration))
+    Each 'task' sleeps for a random duration (uniformly continuous from 0 to 5 seconds).
+    With a default of 100 tasks, this is expected to take ~4 minutes to complete.
+    """
+    number_of_tasks = 100
+    task_durations = [random.uniform(0, 5.0) for _ in range(number_of_tasks)]
+
+    tasks = []
+    for task_duration in task_durations:
+        task = asyncio.create_task(_async_sleep(sleep_duration=task_duration))
         tasks.append(task)
 
     return tasks
@@ -53,9 +56,9 @@ class ProgressHandler:
 
         self.callback_ids = []
 
-    async def run(self):
-        for f in self.progress_bar:
-            await f
+    # async def run(self):
+    #     for f in self.progress_bar:
+    #         await f
 
     def stop(self):
         self.started = False
@@ -68,17 +71,18 @@ class ProgressHandler:
 
     async def run(self):
         if hasattr(self, "progress_bar"):
-            print("Progress bar already running")
+            print("Progress bar already running!")
             return
 
         self.tasks = create_tasks()
-        self.progress_bar = TQDMPublisher(asyncio.as_completed(self.tasks), total=len(self.tasks))
+        self.progress_bar = TQDMPublisher(iterable=asyncio.as_completed(self.tasks), total=len(self.tasks))
 
         for callback in self.callbacks:
             self._subscribe(callback)
 
-        for f in self.progress_bar:
-            await f
+        # Iterate the asynchronous tasks to trigger them
+        for task in self.progress_bar:
+            await task
 
         self._clear()
         del self.progress_bar
@@ -97,56 +101,43 @@ class ProgressHandler:
         self.thread.start()
 
 
-progress_handler = ProgressHandler()
-
-
 class WebSocketHandler:
-    def __init__(self):
-        self.clients = {}
-
-        # Initialize with any state you need
-        pass
-
-    def handle_task_result(self, task):
+    def handle_task_result(self, task) -> None:
         try:
             task.result()  # This will re-raise any exception that occurred in the task
         except websockets.exceptions.ConnectionClosedOK:
-            print("WebSocket closed while sending message")
+            print("WebSocket closed while sending message!")
         except Exception as e:
             print(f"Error in task: {e}")
 
-    async def handler(self, websocket):
-        id = str(uuid4())
-        self.clients[id] = websocket  # Register client connection
+    async def handler(self, websocket) -> None:
+        # Setup progress bar
+        progress_bar = TQDMPublisher(iterable=asyncio.as_completed(self.tasks), total=len(self.tasks))
 
-        progress_handler.start()  # Start if not started
+        def on_progress(info: dict):
+            """
+            This is the primary callback interfacing with TQDM.
 
-        def on_progress(info):
-            task = asyncio.create_task(websocket.send(json.dumps(info)))
+            It can
+            """
+            task = asyncio.create_task(websocket.send(json.dumps(obj=info)))
             task.add_done_callback(self.handle_task_result)  # Handle task result or exception
 
-        progress_handler.subscribe(on_progress)
+        callback_id = progress_bar.subscribe(on_progress)
 
-        try:
-            async for message in websocket:
-                print("Message from client received:", message)
+        # Iterate the asynchronous tasks to trigger them
+        for task in self.progress_bar:
+            await task
 
-        finally:
-            # This is called when the connection is closed
-            del self.clients[id]
-            if len(self.clients) == 0:
-                progress_handler.stop()
+        async for message in websocket:
+            print("Message from client received:", message)
 
 
-async def spawn_server():
+async def _spawn_server() -> None:
     handler = WebSocketHandler().handler
     async with websockets.serve(handler, "", 8000):
         await asyncio.Future()  # run forever
 
 
-def main():
-    asyncio.run(spawn_server())
-
-
 if __name__ == "__main__":
-    main()
+    asyncio.run(_spawn_server())

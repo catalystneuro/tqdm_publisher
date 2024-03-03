@@ -51,7 +51,7 @@ demo = [
 "Bug Tracker" = "https://github.com/catalystneuro/tqdm_publisher/issues"
 
 [project.scripts]
-tqdm_publisher = "tqdm_publisher.demo.demo_cli:main"
+tqdm_publisher = "tqdm_publisher._demo._demo_command_line_interface:_demo_command_line_interface"
 
 [tool.black]
 line-length = 120

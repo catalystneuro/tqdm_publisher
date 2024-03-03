@@ -18,7 +18,7 @@ class TQDMPublisher(base_tqdm):
 
         return displayed
 
-    def subscribe(self, callback: callable):
+    def subscribe(self, callback: callable) -> str:
         """
         Subscribe to updates from the progress bar.
 
