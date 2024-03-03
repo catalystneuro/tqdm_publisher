@@ -50,8 +50,8 @@ demo = [
 "Homepage" = "https://github.com/catalystneuro/tqdm_publisher"
 "Bug Tracker" = "https://github.com/catalystneuro/tqdm_publisher/issues"
 
-[project.gui-scripts]
-tqdm_publisher = "demo.demo_cli:main"
+[project.scripts]
+tqdm_publisher = "tqdm_publisher.demo.demo_cli:main"
 
 [tool.black]
 line-length = 120

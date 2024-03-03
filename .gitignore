@@ -5,3 +5,5 @@ dist
 .coverage
 .coverage.*
 codecov.xml
+
+.DS_Store
