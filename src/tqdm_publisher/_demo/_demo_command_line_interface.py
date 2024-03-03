@@ -1,3 +1,6 @@
+"""Command line interface for running the TQDM Publisher demo."""
+
+import os
 import signal
 import subprocess
 import sys
@@ -15,21 +18,22 @@ parallel_client_path = demo_base_path / "parallel" / "client.py"
 subprocesses = []
 
 
-def close_subprocesses():
+def _close_subprocesses():
     for process in subprocesses:
         process.terminate()  # Send SIGTERM to subprocess
     sys.exit(0)
 
 
-def signal_handler(signal, frame):
+def _signal_handler(signal, frame):
     print("Interrupt signal received. Shutting down subprocesses...")
-    close_subprocesses()
+    _close_subprocesses()
 
 
-signal.signal(signal.SIGINT, signal_handler)
+signal.signal(signal.SIGINT, _signal_handler)
 
 
-def main():
+def _command_line_interface():
+    """Should be called only through the package entrypoint."""
     if len(sys.argv) <= 1:
         print("No command provided. Please specify a command (e.g. 'demo').")
         return
@@ -50,10 +54,13 @@ def main():
 
     if command == "demo":
         if flags["client"]:
-            subprocesses.append(subprocess.Popen(["open", client_path]))
+            if sys.platform == "win32":
+                os.system(f'start "" "{client_path}"')
+            else:
+                subprocess.run(["open", client_path])
 
         if flags["server"]:
-            subprocesses.append(subprocess.Popen(["python", server_path]))
+            subprocess.run(["python", server_path])
 
     elif command == "parallel-demo":
         HOST = "localhost"
@@ -75,7 +82,7 @@ def main():
             client_args = ["python", parallel_client_path]
             if flags["both"]:
                 client_args += ["--port", str(PORT), "--host", HOST]
-            subprocesses.append(subprocess.Popen(client_args))
+            subprocess.run(client_args)
             if flags["both"]:
                 time.sleep(1)  # Ensure server starts before client connects
 
@@ -91,8 +98,8 @@ def main():
 
 if __name__ == "__main__":
     try:
-        main()
-    except KeyboardInterrupt as e:
+        _command_line_interface()
+    except KeyboardInterrupt:
         print("\n\nInterrupt signal received. Shutting down subprocesses...")
     finally:
-        close_subprocesses()
+        _close_subprocesses()
