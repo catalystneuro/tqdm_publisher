@@ -33,15 +33,15 @@ jobs:
 
       - name: Run full pytest with coverage
         run: |
-          pytest -vv -rsx --cov=tqdm_publisher --cov-report xml:./codecov.xml
-          cat ./codecov.xml
+          pytest -vv -rsx --cov=tqdm_publisher --cov-report xml:./coverage.xml
+          cat ./coverage.xml
 
       - name: Upload full coverage to Codecov
         if: ${{ matrix.python-version == '3.11' && matrix.os == 'ubuntu-latest' }}
         uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          file: ./codecov.xml
+          file: ./coverage.xml
           flags: unittests
           name: codecov-umbrella
           fail_ci_if_error: true
