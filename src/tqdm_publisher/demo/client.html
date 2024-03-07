@@ -74,35 +74,67 @@
 
 <script>
 
-    const bars = document.querySelector('#bars');
+    const barElements = document.querySelector('#bars');
+
+    const createProgressBar = () => {
+        const element = document.createElement('div');
+        element.classList.add('progress');
+        const progress = document.createElement('div');
+        element.appendChild(progress);
+        barElements.appendChild(element);
+        return { element, progress };
+    }
 
     class ProgressClient {
-        constructor() {
+        #connect = (props = {}) => {
+
+            const {
+                onopen = () => {},
+                onclose = () => {},
+                onmessage = () => {}
+            } = props;
+
             this.socket = new WebSocket('ws://localhost:8000');
-
-            this.element = document.createElement('div');
-            this.element.classList.add('progress');
-            const progress = document.createElement('div');
-            this.element.appendChild(progress);
-            bars.appendChild(this.element);
-
-            this.socket.addEventListener('message', function (event) {
-                const data = JSON.parse(event.data);
-                progress.style.width = 100 * (data.n / data.total) + '%';
+            this.socket.addEventListener('open', onopen);
+            this.socket.addEventListener('close', () => {
+                onclose();
+                setTimeout(() => this.#connect(props), 1000);
             });
+            this.socket.addEventListener('message', onmessage);
+        }
+        constructor(props) {
 
+            this.#connect(props);
+           
         }
 
         close() {
             this.socket.close();
-            this.element.remove()
         }
 
     }
+    
+
+const bars = {}
+const client = new ProgressClient({
+    onopen: () => console.log('Connected'),
+    onclose: () => console.log('Disconnected'),
+    onmessage: (data) => {
+        const { id, payload } = JSON.parse(event.data);
+        console.log(id, payload, bars[id]);
+        bars[id].style.width = 100 * (payload.n / payload.total) + '%';
+    }
+});
 
 const button = document.querySelector('button');
 button.addEventListener('click', () => {
-    const client = new ProgressClient();
+    const { element, progress } = createProgressBar();
+    barElements.appendChild(element);
+
+    const id = Math.random().toString(36).substring(7);
+    bars[id] = progress;
+
+    client.socket.send(JSON.stringify({ command: 'start', id }));
 })
 
 </script>
