@@ -11,36 +11,50 @@ This is useful if you want to use `tqdm` to track the progress of a long-running
 ```bash
 pip install tqdm_publisher
 ```
+## Getting Started
+### Basic Usage
+To monitor the progress of an existing `tqdm` progress bar, simply swap the `tqdm`and `TQDMPublisher` constructors. Then, declare a callback function to handle progress updates, and subscribe it to the `TQDMPublisher` updates using the `subscribe` method _before iteration begins_.
 
-## Usage
+#### Original Code
 ```python
 import random
-import asyncio
+import time
+
+from tqdm import tqdm
+
+N_TASKS = 100
+
+# Create a list of tasks
+durations = [ random.uniform(0, 1.0) for _ in range(N_TASKS) ]
+
+# Create a progress bar
+progress_bar = tqdm(durations)
+
+# Iterate over the progress bar
+for duration in progress_bar:
+    time.sleep(duration) # Execute the task
+```
+
+#### Modified Code
+
+```python
+import random
+import time
 
 from tqdm_publisher import TQDMPublisher
 
-async def sleep_func(sleep_duration = 1):
-    await asyncio.sleep(delay=sleep_duration)
+N_TASKS = 100
+durations = [ random.uniform(0, 1.0) for _ in range(N_TASKS) ]
+progress_bar = TQDMPublisher(durations)
 
-async def run_multiple_sleeps(sleep_durations):
+# Declare a callback function to handle progress updates
+on_update = lambda info: print('Progress Update', info)
 
-    tasks = []
+# Subscribe the callback to the TQDMPublisher
+progress_bar.subscribe(on_update)
 
-    for sleep_duration in sleep_durations:
-        task = asyncio.create_task(sleep_func(sleep_duration=sleep_duration))
-        tasks.append(task)
-
-    progress_bar = TQDMPublisher(asyncio.as_completed(tasks), total=len(tasks))
-    callback_id = progress_bar.subscribe(lambda info: print('Progress Update', info))
-
-    for f in progress_bar:
-        await f
-
-    progress_bar.unsubscribe(callback_id)
-
-number_of_tasks = 10**5
-sleep_durations = [random.uniform(0, 5.0) for _ in range(number_of_tasks)]
-asyncio.run(run_multiple_sleeps(sleep_durations=sleep_durations))
+for duration in progress_bar:
+    time.sleep(duration)
 ```
 
 ## Demo

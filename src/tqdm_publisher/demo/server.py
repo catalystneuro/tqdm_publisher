@@ -18,7 +18,7 @@ def generate_task_durations(n = 100) -> List[float]:
 
 def start_progress_bar(id, callback):
     durations = generate_task_durations()
-    progress_bar = TQDMPublisher(durations, total=len(durations))
+    progress_bar = TQDMPublisher(durations)
     progress_bar.subscribe(lambda info: callback(id, info))
     for duration in progress_bar:
         time.sleep(duration)
