@@ -26,7 +26,7 @@ class ProgressClient {
         this.socket = new WebSocket('ws://localhost:8000');
         this.socket.addEventListener('open', onopen);
 
-        // Attemp to reconnect every second if the connection is closed
+        // Attempt to reconnect every second if the connection is closed
         this.socket.addEventListener('close', () => {
             onclose();
             setTimeout(() => this.#connect(props), 1000);
