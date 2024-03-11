@@ -28,7 +28,6 @@ def start_progress_bar(*, client_id: str, progress_bar_id: str, client_callback:
         server-specific callback inside the local scope.
 
         In this demo, we will execute the `client_callback` whose protocol is known only to the WebSocketHandler.
-        It has
         """
         client_callback(client_id=client_id, progress_bar_id=progress_bar_id, format_dict=format_dict)
 
@@ -39,25 +38,34 @@ def start_progress_bar(*, client_id: str, progress_bar_id: str, client_callback:
 
 
 class WebSocketHandler:
-    """Describe this class."""
+    """
+    This is a class that handles the WebSocket connections and the communication protocol 
+    between the server and the client. 
+    
+    While we could have implemented this as a function, a class is chosen here to maintain reference 
+    to the clients within a defined scope.
+    """
 
     def __init__(self) -> None:
         """Initialize the mapping of client IDs to ."""
         self.clients: Dict[str, Any] = dict()
 
-    def function_to_run_on_progress_update(self, *, client_id: str, progress_bar_id: str, format_dict: dict) -> None:
-        """This is..."""
+    def forward_progress_to_client(self, *, client_id: str, progress_bar_id: str, format_dict: dict) -> None:
+        """This is the function that will run on every update of the TQDM object. It will forward the progress to the client."""
         asyncio.run(self.send(client_id=client_id, data=dict(progress_bar_id=progress_bar_id, format_dict=format_dict)))
 
     async def send(self, client_id: str, data: dict) -> None:
         """Send an arbitrary JSON object `data` to the client identifier by `client_id`."""
         await self.clients[client_id].send(json.dumps(obj=data))
 
-    async def handler(self, websocket) -> None:
-        """Describe what the handler does."""
+    async def handler(self, websocket: websockets.server.WebSocketServerProtocol) -> None:
+        """Register new WebSocket clients and handle their messages."""
         client_id = str(uuid4())
-        self.clients[client_id] = websocket  # Register client connection
+        
+        # Register client connection 
+        self.clients[client_id] = websocket 
 
+        # Wait for messages from the client
         try:
             async for message in websocket:
                 message_from_client = json.loads(message)
@@ -68,11 +76,13 @@ class WebSocketHandler:
                         kwargs=dict(
                             client_id=client_id,
                             progress_bar_id=message_from_client["progress_bar_id"],
-                            client_callback=self.function_to_run_on_progress_update,
+                            client_callback=self.forward_progress_to_client,
                         ),
                     )
                     thread.start()
-        finally:  # This is called when the connection is closed
+
+        # Deregister the client when the connection is closed
+        finally: 
             if client_id in self.clients:
                 del self.clients[client_id]
 
