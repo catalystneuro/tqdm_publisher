@@ -10,7 +10,7 @@ import websockets
 from tqdm_publisher import TQDMPublisher
 
 
-def start_progress_bar(*, client_id: str, progress_bar_id: str, client_callback: callable) -> None:
+def start_progress_bar(*, progress_bar_id: str, client_callback: callable) -> None:
     """
     Emulate running the specified number of tasks by sleeping the specified amount of time on each iteration.
 
@@ -29,7 +29,7 @@ def start_progress_bar(*, client_id: str, progress_bar_id: str, client_callback:
 
         In this demo, we will execute the `client_callback` whose protocol is known only to the WebSocketHandler.
         """
-        client_callback(client_id=client_id, progress_bar_id=progress_bar_id, format_dict=format_dict)
+        client_callback(progress_bar_id=progress_bar_id, format_dict=format_dict)
 
     progress_bar.subscribe(callback=run_function_on_progress_update)
 
@@ -37,59 +37,36 @@ def start_progress_bar(*, client_id: str, progress_bar_id: str, client_callback:
         time.sleep(task_duration)
 
 
-class WebSocketHandler:
-    """
-    This is a class that handles the WebSocket connections and the communication protocol
-    between the server and the client.
+async def handler(websocket: websockets.WebSocketServerProtocol) -> None:
+    """Handle messages from the client and manage the client connections."""
 
-    While we could have implemented this as a function, a class is chosen here to maintain reference
-    to the clients within a defined scope.
-    """
-
-    def __init__(self) -> None:
-        """Initialize the mapping of client IDs to ."""
-        self.clients: Dict[str, Any] = dict()
-
-    def forward_progress_to_client(self, *, client_id: str, progress_bar_id: str, format_dict: dict) -> None:
+    def forward_progress_to_client(*, progress_bar_id: str, format_dict: dict) -> None:
         """This is the function that will run on every update of the TQDM object. It will forward the progress to the client."""
-        asyncio.run(self.send(client_id=client_id, data=dict(progress_bar_id=progress_bar_id, format_dict=format_dict)))
+        asyncio.run(websocket.send(json.dumps(obj=dict(progress_bar_id=progress_bar_id, format_dict=format_dict))))
 
-    async def send(self, client_id: str, data: dict) -> None:
-        """Send an arbitrary JSON object `data` to the client identifier by `client_id`."""
-        await self.clients[client_id].send(json.dumps(obj=data))
+    # Wait for messages from the client
+    try:
+        async for message in websocket:
+            message_from_client = json.loads(message)
 
-    async def handler(self, websocket: websockets.WebSocketServerProtocol) -> None:
-        """Register new WebSocket clients and handle their messages."""
-        client_id = str(uuid4())
+            if message_from_client["command"] == "start":
+                thread = threading.Thread(
+                    target=start_progress_bar,
+                    kwargs=dict(
+                        progress_bar_id=message_from_client["progress_bar_id"],
+                        client_callback=forward_progress_to_client
+                    ),
+                )
+                thread.start()
 
-        # Register client connection
-        self.clients[client_id] = websocket
-
-        # Wait for messages from the client
-        try:
-            async for message in websocket:
-                message_from_client = json.loads(message)
-
-                if message_from_client["command"] == "start":
-                    thread = threading.Thread(
-                        target=start_progress_bar,
-                        kwargs=dict(
-                            client_id=client_id,
-                            progress_bar_id=message_from_client["progress_bar_id"],
-                            client_callback=self.forward_progress_to_client,
-                        ),
-                    )
-                    thread.start()
-
-        # Deregister the client when the connection is closed
-        finally:
-            if client_id in self.clients:
-                del self.clients[client_id]
+    # Catch the closing of the connection
+    finally:
+        pass
+        
 
 
 async def spawn_server() -> None:
     """Spawn the server asynchronously."""
-    handler = WebSocketHandler().handler
     async with websockets.serve(handler, "", 8000):
         await asyncio.Future()
 
