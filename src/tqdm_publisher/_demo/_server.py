@@ -58,7 +58,7 @@ class WebSocketHandler:
         """Send an arbitrary JSON object `data` to the client identifier by `client_id`."""
         await self.clients[client_id].send(json.dumps(obj=data))
 
-    async def handler(self, websocket: websockets.server.WebSocketServerProtocol) -> None:
+    async def handler(self, websocket: websockets.WebSocketServerProtocol) -> None:
         """Register new WebSocket clients and handle their messages."""
         client_id = str(uuid4())
         
