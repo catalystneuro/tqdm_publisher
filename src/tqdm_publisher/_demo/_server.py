@@ -2,7 +2,7 @@ import asyncio
 import json
 import threading
 import time
-from typing import Dict, Any, List
+from typing import Any, Dict, List
 from uuid import uuid4
 
 import websockets
