@@ -12,6 +12,7 @@
 
     <title>Concurrent Client Demo</title>
 
+    <!-- Basic Page Styling -->
     <style>
 
         html, body {
@@ -45,8 +46,6 @@
             background-color: #ddd;
         }
 
-
-
         .progress div {
             height: 100%;
             background-color: #4caf50;
@@ -54,57 +53,23 @@
         }
 
     </style>
+    <script src="./_client.js" defer></script>
 
 </head>
 
+<!-- Basic Page Structure -->
 <body>
     <header>
         <div>
             <h1>tqdm_progress</h1>
             <i><small>Create multiple progress bars to test concurrent subscriptions</small></i>
         </div>
+
+        <!-- Declare a button to create progress bars -->
         <button>Create Progress Bar</button>
     </header>
 
-    <div id="bars">
-
-    </div>
-
+    <!-- Declare a container to hold the progress bars -->
+    <div id="bars"></div>
 </body>
-
-<script>
-
-    const bars = document.querySelector('#bars');
-
-    class ProgressClient {
-        constructor() {
-            this.socket = new WebSocket('ws://localhost:8000');
-
-            this.element = document.createElement('div');
-            this.element.classList.add('progress');
-            const progress = document.createElement('div');
-            this.element.appendChild(progress);
-            bars.appendChild(this.element);
-
-            this.socket.addEventListener('message', function (event) {
-                const data = JSON.parse(event.data);
-                progress.style.width = 100 * (data.n / data.total) + '%';
-            });
-
-        }
-
-        close() {
-            this.socket.close();
-            this.element.remove()
-        }
-
-    }
-
-const button = document.querySelector('button');
-button.addEventListener('click', () => {
-    const client = new ProgressClient();
-})
-
-</script>
-
 </html>

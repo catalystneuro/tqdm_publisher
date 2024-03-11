@@ -31,6 +31,7 @@ classifiers = [
     "Operating System :: MacOS",
     "Operating System :: Unix",
 ]
+
 dependencies = [
     "tqdm>=4.49.0"
 ]
@@ -50,8 +51,8 @@ demo = [
 "Homepage" = "https://github.com/catalystneuro/tqdm_publisher"
 "Bug Tracker" = "https://github.com/catalystneuro/tqdm_publisher/issues"
 
-[project.gui-scripts]
-tqdm_publisher = "demo.demo_cli:main"
+[project.scripts]
+tqdm_publisher = "tqdm_publisher._demo._demo_command_line_interface:_command_line_interface"
 
 [tool.black]
 line-length = 120
