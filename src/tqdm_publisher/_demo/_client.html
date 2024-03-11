@@ -120,9 +120,8 @@ const client = new ProgressClient({
     onopen: () => console.log('Connected'),
     onclose: () => console.log('Disconnected'),
     onmessage: (data) => {
-        const { id, payload } = JSON.parse(event.data);
-        console.log(id, payload, bars[id]);
-        bars[id].style.width = 100 * (payload.n / payload.total) + '%';
+        const { progress_bar_id, format_dict } = JSON.parse(event.data);
+        bars[progress_bar_id].style.width = 100 * (format_dict.n / format_dict.total) + '%';
     }
 });
 
