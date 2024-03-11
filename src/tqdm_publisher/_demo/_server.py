@@ -44,7 +44,9 @@ async def handler(websocket: websockets.WebSocketServerProtocol) -> None:
 
         It will forward the progress to the client.
         """
-        asyncio.run(websocket.send(json.dumps(obj=dict(progress_bar_id=progress_bar_id, format_dict=format_dict))))
+        asyncio.run(
+            websocket.send(message=json.dumps(obj=dict(progress_bar_id=progress_bar_id, format_dict=format_dict)))
+        )
 
     # Wait for messages from the client
     async for message in websocket:
