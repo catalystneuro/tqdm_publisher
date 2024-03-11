@@ -131,10 +131,10 @@ button.addEventListener('click', () => {
     const { element, progress } = createProgressBar();
     barElements.appendChild(element);
 
-    const id = Math.random().toString(36).substring(7);
-    bars[id] = progress;
+    const progress_bar_id = Math.random().toString(36).substring(7);
+    bars[progress_bar_id] = progress;
 
-    client.socket.send(JSON.stringify({ command: 'start', id }));
+    client.socket.send(JSON.stringify({ command: 'start', progress_bar_id }));
 })
 
 </script>
