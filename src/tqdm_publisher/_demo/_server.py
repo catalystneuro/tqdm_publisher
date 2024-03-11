@@ -39,10 +39,10 @@ def start_progress_bar(*, client_id: str, progress_bar_id: str, client_callback:
 
 class WebSocketHandler:
     """
-    This is a class that handles the WebSocket connections and the communication protocol 
-    between the server and the client. 
-    
-    While we could have implemented this as a function, a class is chosen here to maintain reference 
+    This is a class that handles the WebSocket connections and the communication protocol
+    between the server and the client.
+
+    While we could have implemented this as a function, a class is chosen here to maintain reference
     to the clients within a defined scope.
     """
 
@@ -61,9 +61,9 @@ class WebSocketHandler:
     async def handler(self, websocket: websockets.server.WebSocketServerProtocol) -> None:
         """Register new WebSocket clients and handle their messages."""
         client_id = str(uuid4())
-        
-        # Register client connection 
-        self.clients[client_id] = websocket 
+
+        # Register client connection
+        self.clients[client_id] = websocket
 
         # Wait for messages from the client
         try:
@@ -82,7 +82,7 @@ class WebSocketHandler:
                     thread.start()
 
         # Deregister the client when the connection is closed
-        finally: 
+        finally:
             if client_id in self.clients:
                 del self.clients[client_id]
 
