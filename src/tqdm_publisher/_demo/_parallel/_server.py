@@ -1,20 +1,18 @@
 """Demo of parallel tqdm."""
 
 # HTTP server addition
-import http.server
 import json
-import socket
-import socketserver
 import sys
-import threading
 import time
 import uuid
 from concurrent.futures import ProcessPoolExecutor
-from typing import List, Tuple
-
+from typing import Tuple
 import requests
 
 from tqdm_publisher import TQDMPublisher
+
+NUMBER_OF_JOBS = 3
+REPEATS = [4, 6, 8, 10, 4, 8, 20, 10, 5, 12, 5, 4, 5, 5, 5]
 
 
 def _run_sleep_in_subprocess(args: Tuple[int, int]):
@@ -34,10 +32,9 @@ def _run_sleep_in_subprocess(args: Tuple[int, int]):
 
     if url:
 
-        def to_main_process(n: int, total: int, **kwargs):
+        def to_main_process(format_dict):
 
-            json_data = json.dumps(dict(id=str(id), data=dict(n=n, total=total)))
-
+            json_data = json.dumps(dict(id=str(id), data=dict(n=format_dict["n"], total=format_dict["total"])))
             requests.post(url, data=json_data, headers={"Content-Type": "application/json"})
 
         sub_progress_bar.subscribe(to_main_process)
@@ -46,14 +43,30 @@ def _run_sleep_in_subprocess(args: Tuple[int, int]):
         time.sleep(0.5)
 
 
+def run_demo(host, port):
+
+    URL = f"http://{host}:{port}" if port else None
+
+    # Start the parallel jobs
+    with ProcessPoolExecutor(max_workers=NUMBER_OF_JOBS) as executor:
+
+        job_map = executor.map(
+            _run_sleep_in_subprocess,
+            [(repeat, iteration_index, uuid.uuid4(), URL) for iteration_index, repeat in enumerate(REPEATS)],
+        )
+
+        [_ for _ in job_map]  # perform iteration to deploy jobs
+
+
 if __name__ == "__main__":
-    number_of_jobs = 3
-    repeats = [4, 6, 8, 10, 4, 8, 20, 10, 5, 12, 5, 4, 5, 5, 5]
 
     flags_list = sys.argv[1:]
 
     port_flag = "--port" in flags_list
     host_flag = "--host" in flags_list
+
+    PORT = None
+    HOST = "localhost"
 
     if port_flag:
         port_index = flags_list.index("--port")
@@ -62,17 +75,5 @@ if __name__ == "__main__":
     if host_flag:
         host_index = flags_list.index("--host")
         HOST = flags_list[host_index + 1]
-    else:
-        HOST = "localhost"
 
-    URL = f"http://{HOST}:{PORT}" if port_flag else None
-
-    # Start the parallel jobs
-    with ProcessPoolExecutor(max_workers=number_of_jobs) as executor:
-
-        job_map = executor.map(
-            _run_sleep_in_subprocess,
-            [(repeat, iteration_index, uuid.uuid4(), URL) for iteration_index, repeat in enumerate(repeats)],
-        )
-
-        [_ for _ in job_map]  # perform iteration to deploy jobs
+    run_demo(HOST, PORT)

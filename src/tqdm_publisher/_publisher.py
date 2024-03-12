@@ -15,7 +15,7 @@ class TQDMPublisher(base_tqdm):
 
         format_dict = self.format_dict
         for callback in self.callbacks.values():
-            callback(**format_dict)
+            callback(format_dict)
 
         return displayed
 

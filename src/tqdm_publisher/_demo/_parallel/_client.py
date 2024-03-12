@@ -8,11 +8,17 @@ import socket
 import socketserver
 import sys
 
+# Kill server on interrupt
+import signal
+
 
 def find_free_port():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind(("", 0))  # Bind to a free port provided by the host
         return s.getsockname()[1]  # Return the port number assigned
+    
+class MyTCPServer(socketserver.TCPServer):
+    allow_reuse_address = True  # This allows the server to bind to an address that is in a TIME_WAIT state
 
 
 def GLOBAL_CALLBACK(id, n, total):
@@ -40,12 +46,12 @@ if __name__ == "__main__":
             self.send_response(200)
             self.end_headers()
 
-    with socketserver.TCPServer(("", PORT), MyHttpRequestHandler) as httpd:
+    with MyTCPServer(("", PORT), MyHttpRequestHandler) as httpd:
 
         def signal_handler(signal, frame):
             print("\n\nInterrupt signal received. Closing server...")
-            httpd.server_close()
-            httpd.socket.close()
+            httpd.shutdown()  # Stop the serve_forever loop
+            httpd.server_close()  # Clean up the server socket
             print("Server closed.")
 
         signal.signal(signal.SIGINT, signal_handler)
