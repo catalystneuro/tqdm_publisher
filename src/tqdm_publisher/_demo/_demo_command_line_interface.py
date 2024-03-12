@@ -1,13 +1,12 @@
 import os
+import signal
 import subprocess
 import sys
+import time
 from pathlib import Path
 
-from ._server import run_demo as _server
 from ._parallel._server import run_demo as _parallel_server
-
-import signal
-import time
+from ._server import run_demo as _server
 
 DEMO_BASE_FOLDER_PATH = Path(__file__).parent
 
@@ -24,10 +23,12 @@ CLIENT_FLAG = "--client"
 
 SUBPROCESSES = []
 
+
 def close_process():
     for process in SUBPROCESSES:
         process.terminate()  # Send SIGTERM to subprocess
     # sys.exit()
+
 
 def signal_handler(signal, frame):
     close_process()
@@ -51,7 +52,7 @@ def run_demo(demo, flags):
 
         _server()
 
-    elif demo == 'parallel-demo':
+    elif demo == "parallel-demo":
         if flags["client"]:
             client_args = ["python", PARALLEL_CLIENT_FILE_PATH]
             if flags["both"]:
@@ -63,11 +64,10 @@ def run_demo(demo, flags):
         if flags["server"]:
             if flags["both"]:
                 _parallel_server(flags["host"], flags["port"])
-            else:  
+            else:
                 _parallel_server()
 
             close_process()
-
 
     else:
         print(f"{demo} is an invalid demo option.")
@@ -79,9 +79,8 @@ def get_flag(flags, flag, default=None):
         return flags[flag_index + 1]
     return default
 
+
 def _command_line_interface():
-
-
     """A simple command line interface for running the demo for TQDM Publisher."""
     if len(sys.argv) <= 1:
         print("No input provided. Please specify a command (e.g. 'demo').")
@@ -99,7 +98,7 @@ def _command_line_interface():
     if len(flags_list) > 0:
         print(f"No flags are accepted at this time, but flags {flags_list} were received.")
         return
-    
+
     client_flag = "--client" in flags_list
     server_flag = "--server" in flags_list
     both_flags = "--server" in flags_list and "--client" in flags_list
@@ -108,8 +107,8 @@ def _command_line_interface():
         client=not server_flag or both_flags,
         server=not client_flag or both_flags,
         both=(client_flag and server_flag) or (not client_flag and not server_flag),
-        host= get_flag(flags_list, HOST_FLAG, "localhost"),
-        port= get_flag(flags_list, PORT_FLAG, 8000)
+        host=get_flag(flags_list, HOST_FLAG, "localhost"),
+        port=get_flag(flags_list, PORT_FLAG, 8000),
     )
 
     try:

@@ -7,6 +7,7 @@ import time
 import uuid
 from concurrent.futures import ProcessPoolExecutor
 from typing import Tuple
+
 import requests
 
 from tqdm_publisher import TQDMPublisher
