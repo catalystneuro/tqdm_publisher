@@ -4,20 +4,14 @@ import sys
 import webbrowser
 from pathlib import Path
 
-from tqdm_publisher._demo._single_bar._server import run_single_bar_demo
 from tqdm_publisher._demo._multiple._server import run_multiple_bar_demo
+from tqdm_publisher._demo._single_bar._server import run_single_bar_demo
 
 CLIENT_PORT = 1234
 
 DEMOS = {
-    "single": dict(
-        subpath="_single_bar",
-        server=run_single_bar_demo
-    ),
-    "multiple": dict(
-        subpath="_multiple",
-        server=run_multiple_bar_demo
-    )
+    "single": dict(subpath="_single_bar", server=run_single_bar_demo),
+    "multiple": dict(subpath="_multiple", server=run_multiple_bar_demo),
     # "parallel": "_parallel",
 }
 
