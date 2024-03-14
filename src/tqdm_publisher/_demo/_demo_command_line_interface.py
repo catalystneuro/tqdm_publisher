@@ -7,6 +7,7 @@ from pathlib import Path
 from tqdm_publisher._demo._single_bar._server import run_single_bar_demo
 from tqdm_publisher._demo._multiple._server import run_multiple_bar_demo
 
+CLIENT_PORT = 1234
 
 DEMOS = {
     "single": dict(
@@ -22,7 +23,6 @@ DEMOS = {
 
 DEMO_BASE_FOLDER_PATH = Path(__file__).parent
 
-CLIENT_PORT = 1234
 RELATIVE_DEMO_BASE_FOLDER_PATH = DEMO_BASE_FOLDER_PATH.relative_to(Path.cwd())
 
 
