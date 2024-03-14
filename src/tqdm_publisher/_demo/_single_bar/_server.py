@@ -14,7 +14,7 @@ def start_progress_bar(*, progress_callback: callable) -> None:
 
     Defaults are chosen for a deterministic and regular update period of one second for a total time of one minute.
     """
-    all_task_durations_in_seconds = [0.1 for _ in range(100)]  # Ten seconds of one hundred tasks
+    all_task_durations_in_seconds = [1.0 for _ in range(10)]  # Ten seconds at one second per task
     progress_bar = tqdm_publisher.TQDMPublisher(iterable=all_task_durations_in_seconds)
 
     def run_function_on_progress_update(format_dict: dict) -> None:
@@ -75,10 +75,8 @@ async def spawn_server() -> None:
         await asyncio.Future()
 
 
-def run_demo() -> None:
+def run_single_bar_demo() -> None:
     """Trigger the execution of the asynchronous spawn."""
     asyncio.run(spawn_server())
 
 
-if __name__ == "__main__":
-    run_demo()

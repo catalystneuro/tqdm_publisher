@@ -33,7 +33,7 @@ async def handler(websocket: websockets.WebSocketServerProtocol) -> None:
 
             Defaults are chosen for a deterministic and regular update period of one second for a total time of one minute.
             """
-            all_task_durations_in_seconds = [0.1 for _ in range(100)]  # Ten seconds of one hundred tasks
+            all_task_durations_in_seconds = [1.0 for _ in range(10)]  # Ten seconds at one task per second
             progress_bar = self.progress_bar = tqdm_publisher.TQDMPublisher(iterable=all_task_durations_in_seconds)
             progress_bar.subscribe(callback=self.update)
 
@@ -59,7 +59,7 @@ async def spawn_server() -> None:
         await asyncio.Future()
 
 
-def run_demo() -> None:
+def run_multiple_bar_demo() -> None:
     """Trigger the execution of the asynchronous spawn."""
     asyncio.run(spawn_server())
 
