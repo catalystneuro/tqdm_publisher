@@ -62,8 +62,7 @@ async def handler(websocket: websockets.WebSocketServerProtocol) -> None:
                 # On each update of the progress bar, send this update to the requesting client
                 kwargs=dict(
                     progress_callback=lambda id, format_dict: send_message_to_client(
-                        websocket=websocket, 
-                        message=dict(id=id, format_dict=format_dict)
+                        websocket=websocket, message=dict(id=id, format_dict=format_dict)
                     )
                 ),
             )
