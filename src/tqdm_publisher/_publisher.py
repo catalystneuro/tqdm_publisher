@@ -8,7 +8,7 @@ class TQDMPublisher(base_tqdm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.id = str(uuid4())
-        self.callbacks = {}
+        self.callbacks = dict()
 
     # Override the update method to run callbacks
     def update(self, n: int = 1) -> Union[bool, None]:
