@@ -33,7 +33,7 @@ async def handler(websocket: websockets.WebSocketServerProtocol) -> None:
 
             Defaults are chosen for a deterministic and regular update period of one second for a total time of one minute.
             """
-            all_task_durations_in_seconds = [.1 for _ in range(100)]  # Ten seconds of one hundred tasks
+            all_task_durations_in_seconds = [0.1 for _ in range(100)]  # Ten seconds of one hundred tasks
             progress_bar = self.progress_bar = tqdm_publisher.TQDMPublisher(iterable=all_task_durations_in_seconds)
             progress_bar.subscribe(callback=self.update)
 
@@ -43,7 +43,6 @@ async def handler(websocket: websockets.WebSocketServerProtocol) -> None:
         # def start(self):
         #     thread = threading.Thread(target=self.run_progress_bar)
         #     thread.start()
-
 
     # Wait for messages from the client
     async for message in websocket:

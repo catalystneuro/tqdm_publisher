@@ -14,7 +14,7 @@ def start_progress_bar(*, progress_callback: callable) -> None:
 
     Defaults are chosen for a deterministic and regular update period of one second for a total time of one minute.
     """
-    all_task_durations_in_seconds = [.1 for _ in range(100)]  # Ten seconds of one hundred tasks
+    all_task_durations_in_seconds = [0.1 for _ in range(100)]  # Ten seconds of one hundred tasks
     progress_bar = tqdm_publisher.TQDMPublisher(iterable=all_task_durations_in_seconds)
 
     def run_function_on_progress_update(format_dict: dict) -> None:
@@ -44,9 +44,8 @@ def send_message_to_client(*, websocket: websockets.WebSocketServerProtocol, mes
     This expects a WebSocket connection and a message (dict) to send.
     """
 
-    asyncio.run(
-        websocket.send(message=json.dumps(obj=message))
-    )
+    asyncio.run(websocket.send(message=json.dumps(obj=message)))
+
 
 async def handler(websocket: websockets.WebSocketServerProtocol) -> None:
     """Handle messages from the client and manage the client connections."""
@@ -60,10 +59,11 @@ async def handler(websocket: websockets.WebSocketServerProtocol) -> None:
             # Start the progress bar in a separate thread
             thread = threading.Thread(
                 target=start_progress_bar,
-
                 # On each update of the progress bar, send this update to the requesting client
                 kwargs=dict(
-                    progress_callback=lambda id, format_dict: send_message_to_client(websocket, dict(id=id, format_dict=format_dict))
+                    progress_callback=lambda id, format_dict: send_message_to_client(
+                        websocket, dict(id=id, format_dict=format_dict)
+                    )
                 ),
             )
             thread.start()

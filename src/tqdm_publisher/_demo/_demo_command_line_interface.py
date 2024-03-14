@@ -1,9 +1,8 @@
 import os
 import subprocess
 import sys
-from pathlib import Path
-
 import webbrowser
+from pathlib import Path
 
 DEMOS = {
     "single": "_single",
@@ -44,15 +43,15 @@ def _command_line_interface():
         #     client_relative_path = Path(subpath) / "_client.py"
         #     subprocess.Popen(['python', str(DEMO_BASE_FOLDER_PATH / subpath / "_server.py")])
         #     subprocess.Popen(['python', str(DEMO_BASE_FOLDER_PATH / subpath / "_client.py")])
-        
+
         # else:
 
         client_relative_path = Path(subpath) / "_client.html"
-        subprocess.Popen(['python', '-m', 'http.server', str(CLIENT_PORT), "-d", DEMO_BASE_FOLDER_PATH])
+        subprocess.Popen(["python", "-m", "http.server", str(CLIENT_PORT), "-d", DEMO_BASE_FOLDER_PATH])
 
         webbrowser.open_new_tab(f"http://localhost:{CLIENT_PORT}/{client_relative_path}")
 
-        subprocess.run(['python', str(DEMO_BASE_FOLDER_PATH / subpath / "_server.py")])
+        subprocess.run(["python", str(DEMO_BASE_FOLDER_PATH / subpath / "_server.py")])
 
     else:
         print(f"{command} is an invalid command.")
