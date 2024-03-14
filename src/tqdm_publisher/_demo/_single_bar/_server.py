@@ -8,13 +8,13 @@ import websockets
 import tqdm_publisher
 
 
-def start_progress_bar(*, progress_bar_id: str, client_callback: callable) -> None:
+def start_progress_bar(*, progress_callback: callable) -> None:
     """
     Emulate running the specified number of tasks by sleeping the specified amount of time on each iteration.
 
     Defaults are chosen for a deterministic and regular update period of one second for a total time of one minute.
     """
-    all_task_durations_in_seconds = [1.0 for _ in range(60)]  # One minute at one second per update
+    all_task_durations_in_seconds = [.1 for _ in range(100)]  # Ten seconds of one hundred tasks
     progress_bar = tqdm_publisher.TQDMPublisher(iterable=all_task_durations_in_seconds)
 
     def run_function_on_progress_update(format_dict: dict) -> None:
@@ -25,9 +25,11 @@ def start_progress_bar(*, progress_bar_id: str, client_callback: callable) -> No
         on outside parameters must be achieved by defining those fields at an outer scope and defining this
         server-specific callback inside the local scope.
 
-        In this demo, we will execute the `client_callback` whose protocol is known only to the WebSocketHandler.
+        In this demo, we will execute the `progress_callback` whose protocol is known only to the WebSocketHandler.
+
+        This specifically requires the `id` of the progress bar and the `format_dict` of the TQDM instance.
         """
-        client_callback(progress_bar_id=progress_bar_id, format_dict=format_dict)
+        progress_callback(id=progress_bar.id, format_dict=format_dict)
 
     progress_bar.subscribe(callback=run_function_on_progress_update)
 
@@ -35,29 +37,33 @@ def start_progress_bar(*, progress_bar_id: str, client_callback: callable) -> No
         time.sleep(task_duration)
 
 
+def send_message_to_client(*, websocket: websockets.WebSocketServerProtocol, message: dict) -> None:
+    """
+    Send a message to a specific client.
+
+    This expects a WebSocket connection and a message (dict) to send.
+    """
+
+    asyncio.run(
+        websocket.send(message=json.dumps(obj=message))
+    )
+
 async def handler(websocket: websockets.WebSocketServerProtocol) -> None:
     """Handle messages from the client and manage the client connections."""
-
-    def forward_progress_to_client(*, progress_bar_id: str, format_dict: dict) -> None:
-        """
-        This is the function that will run on every update of the TQDM object.
-
-        It will forward the progress to the client.
-        """
-        asyncio.run(
-            websocket.send(message=json.dumps(obj=dict(progress_bar_id=progress_bar_id, format_dict=format_dict)))
-        )
 
     # Wait for messages from the client
     async for message in websocket:
         message_from_client = json.loads(message)
 
         if message_from_client["command"] == "start":
+
+            # Start the progress bar in a separate thread
             thread = threading.Thread(
                 target=start_progress_bar,
+
+                # On each update of the progress bar, send this update to the requesting client
                 kwargs=dict(
-                    progress_bar_id=message_from_client["progress_bar_id"],
-                    client_callback=forward_progress_to_client,
+                    progress_callback=lambda id, format_dict: send_message_to_client(websocket, dict(id=id, format_dict=format_dict))
                 ),
             )
             thread.start()
@@ -72,3 +78,7 @@ async def spawn_server() -> None:
 def run_demo() -> None:
     """Trigger the execution of the asynchronous spawn."""
     asyncio.run(spawn_server())
+
+
+if __name__ == "__main__":
+    run_demo()

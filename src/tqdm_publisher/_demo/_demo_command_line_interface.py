@@ -3,12 +3,18 @@ import subprocess
 import sys
 from pathlib import Path
 
-from ._server import run_demo
+import webbrowser
+
+DEMOS = {
+    "single": "_single",
+    "multiple": "_multiple",
+    # "parallel": "_parallel",
+}
 
 DEMO_BASE_FOLDER_PATH = Path(__file__).parent
 
-CLIENT_FILE_PATH = DEMO_BASE_FOLDER_PATH / "_client.html"
-SERVER_FILE_PATH = DEMO_BASE_FOLDER_PATH / "_server.py"
+CLIENT_PORT = 1234
+RELATIVE_DEMO_BASE_FOLDER_PATH = DEMO_BASE_FOLDER_PATH.relative_to(Path.cwd())
 
 
 def _command_line_interface():
@@ -30,14 +36,23 @@ def _command_line_interface():
         print(f"No flags are accepted at this time, but flags {flags_list} were received.")
         return
 
-    if command == "demo":
-        # For convenience - automatically pop-up a browser window on the locally hosted HTML page
-        if sys.platform == "win32":
-            os.system(f'start "" "{CLIENT_FILE_PATH}"')
-        else:
-            subprocess.run(["open", CLIENT_FILE_PATH])
+    if command in DEMOS:
 
-        run_demo()
+        subpath = DEMOS[command]
+
+        # if command == "parallel":
+        #     client_relative_path = Path(subpath) / "_client.py"
+        #     subprocess.Popen(['python', str(DEMO_BASE_FOLDER_PATH / subpath / "_server.py")])
+        #     subprocess.Popen(['python', str(DEMO_BASE_FOLDER_PATH / subpath / "_client.py")])
+        
+        # else:
+
+        client_relative_path = Path(subpath) / "_client.html"
+        subprocess.Popen(['python', '-m', 'http.server', str(CLIENT_PORT), "-d", DEMO_BASE_FOLDER_PATH])
+
+        webbrowser.open_new_tab(f"http://localhost:{CLIENT_PORT}/{client_relative_path}")
+
+        subprocess.run(['python', str(DEMO_BASE_FOLDER_PATH / subpath / "_server.py")])
 
     else:
         print(f"{command} is an invalid command.")

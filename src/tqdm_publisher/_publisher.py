@@ -7,6 +7,7 @@ from tqdm import tqdm as base_tqdm
 class TQDMPublisher(base_tqdm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.id = str(uuid4())
         self.callbacks = {}
 
     # Override the update method to run callbacks
