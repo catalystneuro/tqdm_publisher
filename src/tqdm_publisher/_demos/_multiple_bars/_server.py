@@ -15,7 +15,8 @@ async def handler(websocket: websockets.WebSocketServerProtocol) -> None:
         """
         This is similar to the `send_progress_update_to_client` function from the single bar demo server.
 
-        Except for multiple bars, it is easier to link to a particular `request_id` as a
+        The translation of this approach into a scoped class definition is merely to showcase an alternative approach
+        of the execution.
         """
 
         def __init__(self, request_id: str):
