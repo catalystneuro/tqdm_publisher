@@ -4,9 +4,19 @@ import sys
 import webbrowser
 from pathlib import Path
 
+from tqdm_publisher._demo._single_bar._server import run_single_bar_demo
+from tqdm_publisher._demo._multiple._server import run_multiple_bar_demo
+
+
 DEMOS = {
-    "single": "_single",
-    "multiple": "_multiple",
+    "single": dict(
+        subpath="_single_bar",
+        server=run_single_bar_demo
+    ),
+    "multiple": dict(
+        subpath="_multiple",
+        server=run_multiple_bar_demo
+    )
     # "parallel": "_parallel",
 }
 
@@ -37,7 +47,7 @@ def _command_line_interface():
 
     if command in DEMOS:
 
-        subpath = DEMOS[command]
+        demo_info = DEMOS[command]
 
         # if command == "parallel":
         #     client_relative_path = Path(subpath) / "_client.py"
@@ -46,12 +56,12 @@ def _command_line_interface():
 
         # else:
 
-        client_relative_path = Path(subpath) / "_client.html"
+        client_relative_path = Path(demo_info["subpath"]) / "_client.html"
         subprocess.Popen(["python", "-m", "http.server", str(CLIENT_PORT), "-d", DEMO_BASE_FOLDER_PATH])
 
         webbrowser.open_new_tab(f"http://localhost:{CLIENT_PORT}/{client_relative_path}")
 
-        subprocess.run(["python", str(DEMO_BASE_FOLDER_PATH / subpath / "_server.py")])
+        demo_info["server"]()
 
     else:
         print(f"{command} is an invalid command.")

@@ -62,7 +62,3 @@ async def spawn_server() -> None:
 def run_multiple_bar_demo() -> None:
     """Trigger the execution of the asynchronous spawn."""
     asyncio.run(spawn_server())
-
-
-if __name__ == "__main__":
-    run_demo()
