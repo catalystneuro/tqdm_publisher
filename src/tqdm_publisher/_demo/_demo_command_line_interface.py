@@ -10,11 +10,11 @@ from tqdm_publisher._demo._multiple._server import run_multiple_bar_demo
 CLIENT_PORT = 1234
 
 DEMOS = {
-    "single": dict(
+    "single_demo": dict(
         subpath="_single_bar",
         server=run_single_bar_demo
     ),
-    "multiple": dict(
+    "multiple_demo": dict(
         subpath="_multiple",
         server=run_multiple_bar_demo
     )
