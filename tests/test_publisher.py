@@ -1,10 +1,6 @@
-import asyncio
-
-import pytest
-
 from tqdm_publisher import TQDMPublisher
-from tqdm_publisher.testing import create_tasks
 
+import time
 
 def test_initialization():
     publisher = TQDMPublisher()
@@ -12,8 +8,7 @@ def test_initialization():
 
 
 # Test concurrent callback execution
-@pytest.mark.asyncio
-async def test_subscription_and_callback_execution():
+def test_subscription_and_callback_execution():
     n_callback_executions = dict()
 
     def test_callback(identifier, data):
@@ -26,8 +21,9 @@ async def test_subscription_and_callback_execution():
 
         assert "n" in data and "total" in data
 
-    tasks = create_tasks()
-    publisher = TQDMPublisher(asyncio.as_completed(tasks), total=len(tasks))
+    all_task_durations_in_seconds = [.1 for _ in range(10)]
+
+    publisher = TQDMPublisher(all_task_durations_in_seconds)
 
     n_subscriptions = 10
     for i in range(n_subscriptions):
@@ -37,8 +33,8 @@ async def test_subscription_and_callback_execution():
         assert callback_id in publisher.callbacks
 
     # Simulate an update to trigger the callback
-    for f in publisher:
-        await f
+    for duration in publisher:
+        time.sleep(duration)
 
     assert len(n_callback_executions) == n_subscriptions
 
@@ -51,7 +47,7 @@ def test_unsubscription():
         pass
 
     tasks = []
-    publisher = TQDMPublisher(asyncio.as_completed(tasks), total=len(tasks))
+    publisher = TQDMPublisher(tasks)
     callback_id = publisher.subscribe(dummy_callback)
     result = publisher.unsubscribe(callback_id)
     assert result == True
