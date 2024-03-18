@@ -1,6 +1,7 @@
+import time
+
 from tqdm_publisher import TQDMPublisher
 
-import time
 
 def test_initialization():
     publisher = TQDMPublisher()
@@ -21,7 +22,7 @@ def test_subscription_and_callback_execution():
 
         assert "n" in data and "total" in data
 
-    all_task_durations_in_seconds = [.1 for _ in range(10)]
+    all_task_durations_in_seconds = [0.1 for _ in range(10)]
 
     publisher = TQDMPublisher(all_task_durations_in_seconds)
 
