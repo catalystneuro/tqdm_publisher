@@ -5,9 +5,8 @@ import webbrowser
 from pathlib import Path
 
 from tqdm_publisher._demos._multiple_bars._server import run_multiple_bar_demo
-from tqdm_publisher._demos._single_bar._server import run_single_bar_demo
 from tqdm_publisher._demos._parallel_bars._server import run_parallel_bar_demo
-
+from tqdm_publisher._demos._single_bar._server import run_single_bar_demo
 
 CLIENT_PORT = 1234
 

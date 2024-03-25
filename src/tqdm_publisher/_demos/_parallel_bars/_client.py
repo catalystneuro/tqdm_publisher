@@ -41,7 +41,7 @@ def create_http_server(port: int, callback):
         try:
             signal.signal(signal.SIGINT, signal_handler)
         except:
-            pass # Allow to work in thread
+            pass  # Allow to work in thread
 
         print(f"Serving HTTP on port {port}")
         httpd.serve_forever()

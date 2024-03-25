@@ -1,22 +1,22 @@
 """Demo of parallel tqdm."""
 
+import asyncio
 import json
 import sys
+import threading
 import time
 import uuid
 from concurrent.futures import ProcessPoolExecutor
 from typing import List
 
 import requests
-
-from tqdm_publisher import TQDMPublisher, TQDMProgressHandler
-
-import asyncio
-import json
-import time
 import websockets
-import threading
-from tqdm_publisher._demos._parallel_bars._client import create_http_server, find_free_port
+
+from tqdm_publisher import TQDMProgressHandler, TQDMPublisher
+from tqdm_publisher._demos._parallel_bars._client import (
+    create_http_server,
+    find_free_port,
+)
 
 N_JOBS = 3
 
@@ -35,6 +35,7 @@ WEBSOCKETS = {}
 
 ## NOTE: TQDMProgressHandler cannot be called from a process...so we just use a queue directly
 progress_handler = TQDMProgressHandler()
+
 
 def forward_updates_over_websocket(request_id, id, n, total, **kwargs):
     ws = WEBSOCKETS.get(request_id)
@@ -92,9 +93,9 @@ def forward_to_http_server(url: str, request_id: str, id: int, n: int, total: in
 
 
 def _run_sleep_tasks_in_subprocess(
-        args,
-        # task_times: List[float], iteration_index: int, id: int, url: str
-    ):
+    args,
+    # task_times: List[float], iteration_index: int, id: int, url: str
+):
     """
     Run a 'task' that takes a certain amount of time to run on each worker.
 
@@ -146,10 +147,7 @@ def run_parallel_processes(request_id, url: str):
         # Assign the parallel jobs
         job_map = executor.map(
             _run_sleep_tasks_in_subprocess,
-            [
-                (task_times, iteration_index, request_id, url)
-                for iteration_index, task_times in enumerate(TASK_TIMES)
-            ],
+            [(task_times, iteration_index, request_id, url) for iteration_index, task_times in enumerate(TASK_TIMES)],
         )
 
         # Perform iteration to deploy jobs
@@ -158,6 +156,7 @@ def run_parallel_processes(request_id, url: str):
 
 
 WEBSOCKETS = {}
+
 
 async def handler(url: str, websocket: websockets.WebSocketServerProtocol) -> None:
     """Handle messages from the client and manage the client connections."""
@@ -173,6 +172,7 @@ async def handler(url: str, websocket: websockets.WebSocketServerProtocol) -> No
             WEBSOCKETS[request_id] = dict(ref=websocket, id=connection_id)
             run_parallel_processes(request_id, url)
 
+
 async def spawn_server() -> None:
     """Spawn the server asynchronously."""
 
@@ -182,7 +182,6 @@ async def spawn_server() -> None:
 
     async with websockets.serve(ws_handler=lambda websocket: handler(URL, websocket), host="", port=8000):
 
-
         # DEMO ONE: Direct updates from HTTP server
         http_server = ThreadedHTTPServer(port=PORT, callback=forward_updates_over_websocket)
         http_server.start()
@@ -191,10 +190,10 @@ async def spawn_server() -> None:
         # # DEMO TWO: Queue
         # def update_queue(request_id, id, n, total, **kwargs):
         #     progress_handler._announce(dict(request_id=request_id, id=id, n=n, total=total))
-            
+
         # http_server = ThreadedHTTPServer(port=PORT, callback=update_queue)
         # http_server.start()
-        
+
         # queue_task = ThreadedQueueTask()
         # queue_task.start()
         # await asyncio.Future()
@@ -230,4 +229,3 @@ if __name__ == "__main__":
     # Just run the parallel processes
     request_id = uuid.uuid4()
     run_parallel_processes(request_id, URL)
-

@@ -2,6 +2,7 @@ import queue
 
 from ._subscriber import TQDMProgressSubscriber
 
+
 class TQDMProgressHandler:
     def __init__(self):
         self.listeners = []

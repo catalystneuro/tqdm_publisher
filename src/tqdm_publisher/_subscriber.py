@@ -1,5 +1,6 @@
 from ._publisher import TQDMPublisher
 
+
 class TQDMProgressSubscriber(TQDMPublisher):
     def __init__(self, iterable, on_progress_update: callable, **tqdm_kwargs):
         super().__init__(iterable, **tqdm_kwargs)

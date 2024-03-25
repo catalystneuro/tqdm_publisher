@@ -22,14 +22,14 @@ function getRequestContainer(request_id) {
 
 // Create and/or render a progress bar
 const getBar = (request_id, id) => {
-    
+
     if (bars[id]) return bars[id];
 
     const container = getRequestContainer(request_id);
     const bar = createProgressBar(container);
 
     return bars[id] = bar;
-    
+
 }
 
 // Update the specified progress bar when a message is received from the server
