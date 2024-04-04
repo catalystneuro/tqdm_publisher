@@ -53,7 +53,6 @@ def forward_updates_over_websocket(request_id, id, n, total, **kwargs):
             ))
 
 
-
 class ThreadedHTTPServer:
     def __init__(self, port: int, callback):
         self.port = port
@@ -141,12 +140,12 @@ def run_parallel_processes(request_id, url: str):
             [(task_times, iteration_index, request_id, url) for iteration_index, task_times in enumerate(TASK_TIMES)],
         )
 
-        
         # Send initialization for pool progress bar
         forward_to_http_server(url, request_id, id=request_id, n=0, total=len(TASK_TIMES))
 
         for _ in job_map:
             pass
+
 
 WEBSOCKETS = {}
 
