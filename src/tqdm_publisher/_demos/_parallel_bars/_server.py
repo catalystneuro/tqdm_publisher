@@ -44,6 +44,10 @@ progress_handler = TQDMProgressHandler()
 
 
 def forward_updates_over_sse(request_id, id, n, total, **kwargs):
+
+    if (n == total):
+        progress_handler._announce(dict(request_id=request_id, id=request_id, format_dict=dict(n=None, total=None))) # No total
+
     progress_handler._announce(dict(request_id=request_id, id=id, format_dict=dict(n=n, total=total)))
 
 class ThreadedHTTPServer:
@@ -53,20 +57,6 @@ class ThreadedHTTPServer:
 
     def run(self):
         create_http_server(port=self.port, callback=self.callback)
-
-    def start(self):
-        thread = threading.Thread(target=self.run)
-        thread.start()
-
-
-class ThreadedQueueTask:
-    def run(self):
-
-        progress_queue = progress_handler.listen()
-
-        while True:
-            msg = progress_queue.get()
-            forward_updates_over_sse(**msg)
 
     def start(self):
         thread = threading.Thread(target=self.run)
@@ -133,7 +123,9 @@ def run_parallel_processes(request_id, url: str):
             [(task_times, iteration_index, request_id, url) for iteration_index, task_times in enumerate(TASK_TIMES)],
         )
 
-        # Perform iteration to deploy jobs
+        # Send initialization for pool progress bar
+        forward_to_http_server(url, request_id, id=request_id, n=0, total=len(TASK_TIMES))
+
         for _ in job_map:
             pass
 
@@ -191,13 +183,11 @@ async def start_server(port):
 
     # DEMO TWO: Queue
     def update_queue(request_id, id, n, total, **kwargs):
-        progress_handler._announce(dict(request_id=request_id, id=id, format_dict=dict(n=n, total=total)))
+        forward_updates_over_sse(request_id, id, n, total)
 
     http_server = ThreadedHTTPServer(port=PORT, callback=update_queue)
     http_server.start()
 
-    queue_task = ThreadedQueueTask()
-    queue_task.start()
     await asyncio.Future()
         
 def run_parallel_bar_demo() -> None:

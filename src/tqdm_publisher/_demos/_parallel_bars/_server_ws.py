@@ -41,8 +41,20 @@ def forward_updates_over_websocket(request_id, id, n, total, **kwargs):
     ws = WEBSOCKETS.get(request_id)
 
     if ws:
-        asyncio.run(
-            ws["ref"].send(
+
+        async def send():
+            if (n == total):
+                await ws["ref"].send(
+                    message=json.dumps(
+                        obj=dict(
+                            format_dict=dict(n=None, total=None),
+                            id=request_id,
+                            request_id=request_id,
+                        )
+                    )
+                )
+
+            await ws["ref"].send(
                 message=json.dumps(
                     obj=dict(
                         format_dict=dict(n=n, total=total),
@@ -51,7 +63,9 @@ def forward_updates_over_websocket(request_id, id, n, total, **kwargs):
                     )
                 )
             )
-        )
+
+        asyncio.run(send())
+
 
 
 class ThreadedHTTPServer:
@@ -127,15 +141,6 @@ def _run_sleep_tasks_in_subprocess(
 
     sub_progress_bar.subscribe(lambda format_dict: forward_to_http_server(url, request_id, id, **format_dict))
 
-    ## NOTE: TQDMProgressHandler cannot be called directly from a process...
-    # sub_progress_bar = progress_handler.create(
-    #     iterable=task_times,
-    #     position=iteration_index + 1,
-    #     desc=f"Progress on iteration {iteration_index} ({id})",
-    #     leave=False,
-    #     additional_metadata=dict(request_id=request_id, id=id),
-    # )
-
     for sleep_time in sub_progress_bar:
         time.sleep(sleep_time)
 
@@ -150,10 +155,12 @@ def run_parallel_processes(request_id, url: str):
             [(task_times, iteration_index, request_id, url) for iteration_index, task_times in enumerate(TASK_TIMES)],
         )
 
-        # Perform iteration to deploy jobs
+        
+        # Send initialization for pool progress bar
+        forward_to_http_server(url, request_id, id=request_id, n=0, total=len(TASK_TIMES))
+
         for _ in job_map:
             pass
-
 
 WEBSOCKETS = {}
 
