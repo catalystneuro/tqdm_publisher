@@ -1,3 +1,4 @@
+import { EventSourceManager } from '../utils/EventSourceManager.js';
 import { WebSocketManager } from '../utils/WebSocketManager.js';
 import { barContainer, createProgressBar } from '../utils/elements.js';
 
@@ -34,17 +35,20 @@ const getBar = (request_id, id) => {
 
 // Update the specified progress bar when a message is received from the server
 const onProgressUpdate = (event) => {
+    console.log(event)
     const { request_id, id, format_dict } = JSON.parse(event.data);
     const bar = getBar(request_id, id);
     bar.style.width = 100 * (format_dict.n / format_dict.total) + '%';
 }
 
-// Create a new WebSocket client
-const client = new WebSocketManager({ onmessage: onProgressUpdate });
+// Create a new message client
+const wsClient = new WebSocketManager({ onmessage: onProgressUpdate });
+const client = new EventSourceManager({ onmessage: onProgressUpdate });
 
 // Declare that the HTML Button should create a new progress bar when clicked
 const button = document.querySelector('button');
-button.addEventListener('click', () => {
+button.addEventListener('click', async () => {
     const request_id = Math.random().toString(36).substring(7); // Create a unique ID for the progress bar
-    client.socket.send(JSON.stringify({ command: 'start', request_id })); // Send a message to the server to start the progress bar
+    await client.send({ command: 'start', request_id }).catch(() => {}); // Send a message to the server to start the progress bar
+    wsClient.socket.send(JSON.stringify({ command: 'start', request_id })); // Send a message to the server to start the progress bar
 })

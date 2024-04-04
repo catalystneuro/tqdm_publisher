@@ -10,13 +10,7 @@ from concurrent.futures import ProcessPoolExecutor
 from typing import List
 
 import requests
-
-import json
-import sys
-
-from flask import Flask, request, Response, jsonify
-from flask_cors import CORS, cross_origin
-
+import websockets
 
 from tqdm_publisher import TQDMProgressHandler, TQDMPublisher
 from tqdm_publisher._demos._parallel_bars._client import (
@@ -43,8 +37,22 @@ WEBSOCKETS = {}
 progress_handler = TQDMProgressHandler()
 
 
-def forward_updates_over_sse(request_id, id, n, total, **kwargs):
-    progress_handler._announce(dict(request_id=request_id, id=id, format_dict=dict(n=n, total=total)))
+def forward_updates_over_websocket(request_id, id, n, total, **kwargs):
+    ws = WEBSOCKETS.get(request_id)
+
+    if ws:
+        asyncio.run(
+            ws["ref"].send(
+                message=json.dumps(
+                    obj=dict(
+                        format_dict=dict(n=n, total=total),
+                        id=id,
+                        request_id=request_id,
+                    )
+                )
+            )
+        )
+
 
 class ThreadedHTTPServer:
     def __init__(self, port: int, callback):
@@ -66,7 +74,7 @@ class ThreadedQueueTask:
 
         while True:
             msg = progress_queue.get()
-            forward_updates_over_sse(**msg)
+            forward_updates_over_websocket(**msg)
 
     def start(self):
         thread = threading.Thread(target=self.run)
@@ -119,6 +127,15 @@ def _run_sleep_tasks_in_subprocess(
 
     sub_progress_bar.subscribe(lambda format_dict: forward_to_http_server(url, request_id, id, **format_dict))
 
+    ## NOTE: TQDMProgressHandler cannot be called directly from a process...
+    # sub_progress_bar = progress_handler.create(
+    #     iterable=task_times,
+    #     position=iteration_index + 1,
+    #     desc=f"Progress on iteration {iteration_index} ({id})",
+    #     leave=False,
+    #     additional_metadata=dict(request_id=request_id, id=id),
+    # )
+
     for sleep_time in sub_progress_bar:
         time.sleep(sleep_time)
 
@@ -137,73 +154,55 @@ def run_parallel_processes(request_id, url: str):
         for _ in job_map:
             pass
 
-def format_sse(data: str, event=None) -> str:
-    msg = f"data: {json.dumps(data)}\n\n"
-    if event is not None:
-        msg = f"event: {event}\n{msg}"
-    return msg
 
-def listen_to_events():
-    messages = progress_handler.listen()  # returns a queue.Queue
-    while True:
-        msg = messages.get()  # blocks until a new message arrives
-        yield format_sse(msg)
+WEBSOCKETS = {}
 
 
-app = Flask(__name__)
-cors = CORS(app)
-app.config['CORS_HEADERS'] = 'Content-Type'
-PORT = find_free_port()
+async def handler(url: str, websocket: websockets.WebSocketServerProtocol) -> None:
+    """Handle messages from the client and manage the client connections."""
 
-@app.route('/start', methods=["POST"])
-@cross_origin()
-def start():
-    data = json.loads(request.data) if request.data else {}
-    request_id = data["request_id"]
-    run_parallel_processes(request_id, f'http://localhost:{PORT}')
-    return jsonify({"status": "success"})
+    connection_id = uuid.uuid4()
 
-@app.route('/events', methods=["GET"])
-@cross_origin()
-def events():
-    return Response(listen_to_events(), mimetype="text/event-stream")
+    # Wait for messages from the client
+    async for message in websocket:
+        message_from_client = json.loads(message)
 
-class ThreadedFlaskServer:
-    def __init__(self, port: int):
-        self.port = port
+        if message_from_client["command"] == "start":
+            request_id = message_from_client["request_id"]
+            WEBSOCKETS[request_id] = dict(ref=websocket, id=connection_id)
+            run_parallel_processes(request_id, url)
 
-    def run(self):
-        app.run(host='localhost', port=self.port)
 
-    def start(self):
-        thread = threading.Thread(target=self.run)
-        thread.start()
+async def spawn_server() -> None:
+    """Spawn the server asynchronously."""
 
-async def start_server(port):
+    PORT = find_free_port()
 
-    flask_server = ThreadedFlaskServer(port=8000)
-    flask_server.start()
+    URL = f"http://localhost:{PORT}"
 
-    # # DEMO ONE: Direct updates from HTTP server
-    # http_server = ThreadedHTTPServer(port=port, callback=forward_updates_over_sse)
-    # http_server.start()
-    # await asyncio.Future()
+    async with websockets.serve(ws_handler=lambda websocket: handler(URL, websocket), host="", port=8000):
 
-    # DEMO TWO: Queue
-    def update_queue(request_id, id, n, total, **kwargs):
-        progress_handler._announce(dict(request_id=request_id, id=id, format_dict=dict(n=n, total=total)))
+        # # DEMO ONE: Direct updates from HTTP server
+        # http_server = ThreadedHTTPServer(port=PORT, callback=forward_updates_over_websocket)
+        # http_server.start()
+        # await asyncio.Future()
 
-    http_server = ThreadedHTTPServer(port=PORT, callback=update_queue)
-    http_server.start()
+        # DEMO TWO: Queue
+        def update_queue(request_id, id, n, total, **kwargs):
+            progress_handler._announce(dict(request_id=request_id, id=id, n=n, total=total))
 
-    queue_task = ThreadedQueueTask()
-    queue_task.start()
-    await asyncio.Future()
-        
+        http_server = ThreadedHTTPServer(port=PORT, callback=update_queue)
+        http_server.start()
+
+        queue_task = ThreadedQueueTask()
+        queue_task.start()
+        await asyncio.Future()
+
+
 def run_parallel_bar_demo() -> None:
+    """Trigger the execution of the asynchronous spawn."""
+    asyncio.run(spawn_server())
 
-    """Asynchronously start the servers"""
-    asyncio.run(start_server(PORT))
 
 if __name__ == "__main__":
 
