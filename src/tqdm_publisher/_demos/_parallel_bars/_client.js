@@ -43,10 +43,17 @@ const getBar = (request_id, id) => {
 const onProgressUpdate = (event) => {
     const { request_id, id, format_dict } = JSON.parse(event.data);
     const bar = getBar(request_id, id);
+    bar.total = format_dict.total
+    bar.n = format_dict.n
 
-    if (format_dict.total) bar.total = format_dict.total // Cache total
-    if (typeof format_dict.n === 'number') bar.n = format_dict.n // Cache total
-    else bar.n++ // Increment if missing
+    // Update summary bar
+    if (format_dict.n === format_dict.total) {
+        const sumBar = bars[request_id]
+        if (sumBar) {
+            sumBar.n++
+            sumBar.style.width = 100 * (sumBar.n / sumBar.total) + '%';
+        }        
+    }
 
     bar.style.width = 100 * (bar.n / bar.total) + '%';
 }

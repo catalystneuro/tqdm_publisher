@@ -41,20 +41,8 @@ def forward_updates_over_websocket(request_id, id, n, total, **kwargs):
     ws = WEBSOCKETS.get(request_id)
 
     if ws:
-
-        async def send():
-            if (n == total):
-                await ws["ref"].send(
-                    message=json.dumps(
-                        obj=dict(
-                            format_dict=dict(n=None, total=None),
-                            id=request_id,
-                            request_id=request_id,
-                        )
-                    )
-                )
-
-            await ws["ref"].send(
+        
+        asyncio.run(ws["ref"].send(
                 message=json.dumps(
                     obj=dict(
                         format_dict=dict(n=n, total=total),
@@ -62,9 +50,7 @@ def forward_updates_over_websocket(request_id, id, n, total, **kwargs):
                         request_id=request_id,
                     )
                 )
-            )
-
-        asyncio.run(send())
+            ))
 
 
 

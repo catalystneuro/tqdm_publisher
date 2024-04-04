@@ -39,10 +39,6 @@ progress_handler = TQDMProgressHandler()
 
 
 def forward_updates_over_sse(request_id, id, n, total, **kwargs):
-
-    if (n == total):
-        progress_handler._announce(dict(request_id=request_id, id=request_id, format_dict=dict(n=None, total=None))) # No total
-
     progress_handler._announce(dict(request_id=request_id, id=id, format_dict=dict(n=n, total=total)))
 
 

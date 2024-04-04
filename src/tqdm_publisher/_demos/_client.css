@@ -40,6 +40,11 @@ header {
 
 .progress[data-small="true"] {
     height: 10px;
+    border-bottom: 1px solid gainsboro;
+}
+
+.progress[data-small="true"]:last-child {
+    border-bottom: none;
 }
 
 .progress[data-small="false"] {
