@@ -10,13 +10,8 @@ from concurrent.futures import ProcessPoolExecutor
 from typing import List
 
 import requests
-
-import json
-import sys
-
-from flask import Flask, request, Response, jsonify
+from flask import Flask, Response, jsonify, request
 from flask_cors import CORS, cross_origin
-
 
 from tqdm_publisher import TQDMProgressHandler, TQDMPublisher
 from tqdm_publisher._demos._parallel_bars._client import (
@@ -49,6 +44,7 @@ def forward_updates_over_sse(request_id, id, n, total, **kwargs):
         progress_handler._announce(dict(request_id=request_id, id=request_id, format_dict=dict(n=None, total=None))) # No total
 
     progress_handler._announce(dict(request_id=request_id, id=id, format_dict=dict(n=n, total=total)))
+
 
 class ThreadedHTTPServer:
     def __init__(self, port: int, callback):
@@ -129,11 +125,13 @@ def run_parallel_processes(request_id, url: str):
         for _ in job_map:
             pass
 
+
 def format_sse(data: str, event=None) -> str:
     msg = f"data: {json.dumps(data)}\n\n"
     if event is not None:
         msg = f"event: {event}\n{msg}"
     return msg
+
 
 def listen_to_events():
     messages = progress_handler.listen()  # returns a queue.Queue
@@ -144,32 +142,36 @@ def listen_to_events():
 
 app = Flask(__name__)
 cors = CORS(app)
-app.config['CORS_HEADERS'] = 'Content-Type'
+app.config["CORS_HEADERS"] = "Content-Type"
 PORT = find_free_port()
 
-@app.route('/start', methods=["POST"])
+
+@app.route("/start", methods=["POST"])
 @cross_origin()
 def start():
     data = json.loads(request.data) if request.data else {}
     request_id = data["request_id"]
-    run_parallel_processes(request_id, f'http://localhost:{PORT}')
+    run_parallel_processes(request_id, f"http://localhost:{PORT}")
     return jsonify({"status": "success"})
 
-@app.route('/events', methods=["GET"])
+
+@app.route("/events", methods=["GET"])
 @cross_origin()
 def events():
     return Response(listen_to_events(), mimetype="text/event-stream")
+
 
 class ThreadedFlaskServer:
     def __init__(self, port: int):
         self.port = port
 
     def run(self):
-        app.run(host='localhost', port=self.port)
+        app.run(host="localhost", port=self.port)
 
     def start(self):
         thread = threading.Thread(target=self.run)
         thread.start()
+
 
 async def start_server(port):
 
@@ -189,11 +191,12 @@ async def start_server(port):
     http_server.start()
 
     await asyncio.Future()
-        
-def run_parallel_bar_demo() -> None:
 
+
+def run_parallel_bar_demo() -> None:
     """Asynchronously start the servers"""
     asyncio.run(start_server(PORT))
+
 
 if __name__ == "__main__":
 
