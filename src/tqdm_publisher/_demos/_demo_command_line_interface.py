@@ -6,9 +6,10 @@ from pathlib import Path
 
 from tqdm_publisher._demos._multiple_bars._server import run_multiple_bar_demo
 from tqdm_publisher._demos._parallel_bars._server import run_parallel_bar_demo
+from tqdm_publisher._demos._parallel_bars._server_ws import (
+    run_parallel_bar_demo as run_parallel_bar_demo_ws,
+)
 from tqdm_publisher._demos._single_bar._server import run_single_bar_demo
-
-from tqdm_publisher._demos._parallel_bars._server_ws import run_parallel_bar_demo as run_parallel_bar_demo_ws
 
 CLIENT_PORT = 1234
 
