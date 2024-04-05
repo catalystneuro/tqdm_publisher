@@ -59,7 +59,7 @@ const onProgressUpdate = (event) => {
 }
 
 // Create a new message client
-const wsClient = new WebSocketManager({ onmessage: onProgressUpdate }, 10);
+const wsClient = new WebSocketManager({ onmessage: onProgressUpdate }, 3);
 const client = new EventSourceManager({ onmessage: onProgressUpdate });
 
 // Declare that the HTML Button should create a new progress bar when clicked
