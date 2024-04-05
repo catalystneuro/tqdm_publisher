@@ -117,18 +117,22 @@ def run_parallel_processes(request_id, url: str):
             futures.append(
                 executor.submit(
                     _run_sleep_tasks_in_subprocess,
-                    task_times=task_times, 
-                    iteration_index=iteration_index, 
-                    request_id=request_id, 
-                    url=url
+                    task_times=task_times,
+                    iteration_index=iteration_index,
+                    request_id=request_id,
+                    url=url,
                 )
             )
 
         total_tasks_iterable = as_completed(futures)
-        total_tasks_progress_bar = TQDMPublisher(iterable=total_tasks_iterable, total=len(TASK_TIMES), desc="Total tasks completed")
+        total_tasks_progress_bar = TQDMPublisher(
+            iterable=total_tasks_iterable, total=len(TASK_TIMES), desc="Total tasks completed"
+        )
 
         total_tasks_progress_bar.subscribe(
-            lambda format_dict: forward_to_http_server(url=url, request_id=request_id, progress_bar_id=request_id, **format_dict)
+            lambda format_dict: forward_to_http_server(
+                url=url, request_id=request_id, progress_bar_id=request_id, **format_dict
+            )
         )
 
         for _ in total_tasks_progress_bar:
