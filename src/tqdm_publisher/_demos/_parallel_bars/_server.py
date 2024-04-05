@@ -6,7 +6,7 @@ import sys
 import threading
 import time
 import uuid
-from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from typing import List
 
 import requests
@@ -24,12 +24,10 @@ N_JOBS = 3
 # Each outer entry is a list of 'tasks' to perform on a particular worker
 # For demonstration purposes, each in the list of tasks is the length of time in seconds
 # that each iteration of the task takes to run and update the progress bar (emulated by sleeping)
+SECONDS_PER_TASK = 1
+NUMBER_OF_TASKS_PER_JOB = 6
 TASK_TIMES: List[List[float]] = [
-    [0.1 for _ in range(100)],
-    [0.2 for _ in range(100)],
-    [0.3 for _ in range(10)],
-    [0.4 for _ in range(10)],
-    [0.5 for _ in range(10)],
+    [SECONDS_PER_TASK * task_index] * task_index for task_index in range(1, NUMBER_OF_TASKS_PER_JOB + 1)
 ]
 
 WEBSOCKETS = {}
@@ -55,20 +53,23 @@ class ThreadedHTTPServer:
         thread.start()
 
 
-def forward_to_http_server(url: str, request_id: str, id: int, n: int, total: int, **kwargs):
+def forward_to_http_server(url: str, request_id: str, progress_bar_id: int, n: int, total: int, **kwargs):
     """
     This is the parallel callback definition.
     Its parameters are attributes of a tqdm instance and their values are what a typical default tqdm printout
     to console would contain (update step `n` out of `total` iterations).
     """
-    json_data = json.dumps(obj=dict(request_id=request_id, id=str(id), data=dict(n=n, total=total)))
+    json_data = json.dumps(obj=dict(request_id=request_id, id=str(progress_bar_id), data=dict(n=n, total=total)))
 
     requests.post(url=url, data=json_data, headers={"Content-Type": "application/json"})
 
 
 def _run_sleep_tasks_in_subprocess(
     args,
-    # task_times: List[float], iteration_index: int, id: int, url: str
+    # task_times: List[float],
+    # iteration_index: int,
+    # request_id: str,
+    # url: str,
 ):
     """
     Run a 'task' that takes a certain amount of time to run on each worker.
@@ -82,7 +83,7 @@ def _run_sleep_tasks_in_subprocess(
     iteration_index : int
         The index of this task in the list of all tasks from the buffer map.
         Each index would map to a different tqdm position.
-    id : int
+    request_id : int
         Identifier of ??.
     url : str
         The localhost URL to sent progress updates to.
@@ -90,7 +91,7 @@ def _run_sleep_tasks_in_subprocess(
 
     task_times, iteration_index, request_id, url = args
 
-    id = uuid.uuid4()
+    subprogress_bar_id = uuid.uuid4()
 
     sub_progress_bar = TQDMPublisher(
         iterable=task_times,
@@ -99,7 +100,11 @@ def _run_sleep_tasks_in_subprocess(
         leave=False,
     )
 
-    sub_progress_bar.subscribe(lambda format_dict: forward_to_http_server(url, request_id, id, **format_dict))
+    sub_progress_bar.subscribe(
+        lambda format_dict: forward_to_http_server(
+            url=url, request_id=request_id, progress_bar_id=subprogress_bar_id, **format_dict
+        )
+    )
 
     for sleep_time in sub_progress_bar:
         time.sleep(sleep_time)
@@ -107,19 +112,41 @@ def _run_sleep_tasks_in_subprocess(
 
 def run_parallel_processes(request_id, url: str):
 
+    # futures = list()
     with ProcessPoolExecutor(max_workers=N_JOBS) as executor:
-
         # Assign the parallel jobs
         job_map = executor.map(
             _run_sleep_tasks_in_subprocess,
             [(task_times, iteration_index, request_id, url) for iteration_index, task_times in enumerate(TASK_TIMES)],
         )
+        # for iteration_index, task_times in enumerate(TASK_TIMES):
+        #     futures.append(
+        #         executor.submit(
+        #             _run_sleep_tasks_in_subprocess,
+        #             task_times=task_times,
+        #             iteration_index=iteration_index,
+        #             request_id=request_id,
+        #             url=url,
+        #         )
+        #     )
 
         # Send initialization for pool progress bar
-        forward_to_http_server(url, request_id, id=request_id, n=0, total=len(TASK_TIMES))
+        forward_to_http_server(url=url, request_id=request_id, progress_bar_id=request_id, n=0, total=len(TASK_TIMES))
 
-        for _ in job_map:
-            pass
+        # total_tasks_iterable = as_completed(futures)
+        # total_tasks_progress_bar = TQDMPublisher(iterable=total_tasks_iterable, desc="Total tasks completed")
+        # total_tasks_progress_bar.subscribe(
+        #     lambda format_dict: forward_to_http_server(
+        #         url=url, request_id=request_id, progress_bar_id=request_id, **format_dict
+        #     )
+        # )
+
+        # for future in total_tasks_progress_bar:
+        for index, future in enumerate(job_map):
+            future.result()
+            forward_to_http_server(
+                url=url, request_id=request_id, progress_bar_id=request_id, n=index, total=len(TASK_TIMES)
+            )
 
 
 def format_sse(data: str, event=None) -> str:

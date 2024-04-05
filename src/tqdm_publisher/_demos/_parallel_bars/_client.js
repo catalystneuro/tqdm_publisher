@@ -52,7 +52,7 @@ const onProgressUpdate = (event) => {
         if (sumBar) {
             sumBar.n++
             sumBar.style.width = 100 * (sumBar.n / sumBar.total) + '%';
-        }        
+        }
     }
 
     bar.style.width = 100 * (bar.n / bar.total) + '%';
