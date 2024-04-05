@@ -1,6 +1,6 @@
 import { EventSourceManager } from '../utils/EventSourceManager.js';
 import { WebSocketManager } from '../utils/WebSocketManager.js';
-import { barContainer, createProgressBar } from '../utils/elements.js';
+import { createProgressBar } from '../utils/elements.js';
 
 const bars = {} // Track progress bars
 const requests = {} // Track request containers
@@ -43,19 +43,7 @@ const getBar = (request_id, id) => {
 const onProgressUpdate = (event) => {
     const { request_id, id, format_dict } = JSON.parse(event.data);
     const bar = getBar(request_id, id);
-    bar.total = format_dict.total
-    bar.n = format_dict.n
-
-    // Update summary bar
-    if (format_dict.n === format_dict.total) {
-        const sumBar = bars[request_id]
-        if (sumBar) {
-            sumBar.n++
-            sumBar.style.width = 100 * (sumBar.n / sumBar.total) + '%';
-        }
-    }
-
-    bar.style.width = 100 * (bar.n / bar.total) + '%';
+    bar.style.width = 100 * (format_dict.n / format_dict.total) + '%';
 }
 
 // Create a new message client
