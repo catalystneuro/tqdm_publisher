@@ -68,5 +68,5 @@ button.addEventListener('click', async () => {
     const request_id = Math.random().toString(36).substring(7); // Create a unique ID for the progress bar
     getBar(request_id, request_id); // Create a bar specifically for this request
     await client.send({ command: 'start', request_id }).catch(() => {}); // Send a message to the server to start the progress bar
-    wsClient.socket.send(JSON.stringify({ command: 'start', request_id })); // Send a message to the server to start the progress bar
+    wsClient.send({ command: 'start', request_id }); // Send a message to the server to start the progress bar
 })

@@ -171,7 +171,7 @@ class ThreadedFlaskServer:
 
 async def start_server(port):
 
-    flask_server = ThreadedFlaskServer(port=8000)
+    flask_server = ThreadedFlaskServer(port=3768)
     flask_server.start()
 
     # # DEMO ONE: Direct updates from HTTP server

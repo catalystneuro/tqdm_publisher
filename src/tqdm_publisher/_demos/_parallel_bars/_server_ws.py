@@ -172,7 +172,7 @@ async def spawn_server() -> None:
 
     URL = f"http://localhost:{PORT}"
 
-    async with websockets.serve(ws_handler=lambda websocket: handler(URL, websocket), host="", port=8000):
+    async with websockets.serve(ws_handler=lambda websocket: handler(URL, websocket), host="", port=3768):
 
         # # DEMO ONE: Direct updates from HTTP server
         # http_server = ThreadedHTTPServer(port=PORT, callback=forward_updates_over_websocket)

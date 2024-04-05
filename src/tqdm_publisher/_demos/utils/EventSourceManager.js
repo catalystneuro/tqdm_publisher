@@ -2,7 +2,7 @@
 // Create a simple EventSource client wrapper class
 export class EventSourceManager {
 
-    url = 'http://localhost:8000';
+    url = 'http://localhost:3768';
 
     #connect = (props = {}) => {
 

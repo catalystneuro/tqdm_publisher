@@ -63,7 +63,7 @@ async def handler(websocket: websockets.WebSocketServerProtocol) -> None:
 
 async def spawn_server() -> None:
     """Spawn the server asynchronously."""
-    async with websockets.serve(ws_handler=handler, host="", port=8000):
+    async with websockets.serve(ws_handler=handler, host="", port=3768):
         await asyncio.Future()
 
 
