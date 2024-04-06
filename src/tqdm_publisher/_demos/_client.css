@@ -1,6 +1,7 @@
 
 html, body {
     font-family: sans-serif;
+    box-sizing: border-box;
 }
 
 h1 {
@@ -28,10 +29,30 @@ header {
     width: 100%;
     height: 20px;
     background-color: #ddd;
+    box-sizing: border-box;
 }
 
 .progress div {
     height: 100%;
     background-color: #4caf50;
     width: 0%;
+}
+
+.progress[data-small="true"] {
+    height: 10px;
+    border-bottom: 1px solid gainsboro;
+}
+
+.progress[data-small="true"]:last-child {
+    border-bottom: none;
+}
+
+.progress[data-small="false"] {
+    border-bottom: 1px solid black;
+    padding: 4px;
+}
+
+
+.bar-container {
+    border: 1px solid black;
 }
