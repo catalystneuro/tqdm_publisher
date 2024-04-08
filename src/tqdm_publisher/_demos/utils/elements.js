@@ -2,7 +2,7 @@ export const barContainer = document.querySelector('#bars');
 
 // Create a progress bar and append it to the bar container
 export const createProgressBar = (requestContainer = barContainer) => {
-    
+
     const container = document.createElement('div');
     container.classList.add('bar');
 
@@ -35,19 +35,19 @@ export const createProgressBar = (requestContainer = barContainer) => {
 
         readout.innerText = `${n} / ${total} (${percent.toFixed(1)}%)`;
 
-        
-        const remaining = rate && total ? (total - n) / rate : 0; // Seconds    
+
+        const remaining = rate && total ? (total - n) / rate : 0; // Seconds
 
         const description = `${prefix ? `${prefix} — ` : ''}${elapsed.toFixed(1)}s elapsed, ${remaining.toFixed(1)}s remaining`;
 
         if (!request_id || !id) return descriptionEl.innerText = description;
 
         const resolvedDescriptionEl = request_id === id ? getRequestContainer(request_id).description : descriptionEl;
-        
+
         resolvedDescriptionEl.innerText = description
     }
-    
-    
+
+
     return {
         element,
         description: descriptionEl,
@@ -90,7 +90,7 @@ export function getRequestContainer(request_id) {
     const firstHeaderContainer = document.createElement('div');
     const h2 = document.createElement('h2');
     h2.innerText = `Request ID: ${request_id}`;
-    
+
     const description = document.createElement('small');
 
     firstHeaderContainer.append(h2, description);
@@ -105,7 +105,7 @@ export function getRequestContainer(request_id) {
     return REQUESTS[request_id] = {
         header: h2,
         description,
-        bars: barsElement, 
+        bars: barsElement,
         element: container
     };
 

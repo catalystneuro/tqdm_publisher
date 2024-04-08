@@ -94,7 +94,7 @@ def forward_to_http_server(url: str, request_id: str, id: int, format_dict: dict
 
 
 def _run_sleep_tasks_in_subprocess(
-     task_times: List[float],
+    task_times: List[float],
     iteration_index: int,
     request_id: str,
     url: str,
@@ -151,9 +151,7 @@ def run_parallel_processes(*, request_id: str, url: str):
 
         total_tasks_iterable = as_completed(futures)
         total_tasks_progress_bar = TQDMPublisher(
-            iterable=total_tasks_iterable, 
-            total=len(TASK_TIMES), 
-            desc=f"Total tasks completed for {request_id}"
+            iterable=total_tasks_iterable, total=len(TASK_TIMES), desc=f"Total tasks completed for {request_id}"
         )
 
         total_tasks_progress_bar.subscribe(
@@ -164,6 +162,7 @@ def run_parallel_processes(*, request_id: str, url: str):
 
         for _ in total_tasks_progress_bar:
             pass
+
 
 WEBSOCKETS = {}
 

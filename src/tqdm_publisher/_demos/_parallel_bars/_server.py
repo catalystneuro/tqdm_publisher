@@ -127,9 +127,7 @@ def run_parallel_processes(*, all_task_times: List[List[float]], request_id: str
 
         total_tasks_iterable = as_completed(futures)
         total_tasks_progress_bar = TQDMPublisher(
-            iterable=total_tasks_iterable, 
-            total=len(TASK_TIMES), 
-            desc=f"Total tasks completed for {request_id}"
+            iterable=total_tasks_iterable, total=len(TASK_TIMES), desc=f"Total tasks completed for {request_id}"
         )
 
         # The 'total' progress bar bas an ID equivalent to the request ID
