@@ -1,4 +1,4 @@
-from typing import Iterable, Any, Dict
+from typing import Any, Dict, Iterable
 
 from ._publisher import TQDMProgressPublisher
 
@@ -13,6 +13,9 @@ class TQDMProgressSubscriber(TQDMProgressPublisher):
 
             It calls the `on_progress_update` function, which must take a dictionary
             containing the progress bar ID and `format_dict`.
+
+            It must be defined inside this local scope to include the `.progress_bar_id` attribute from the level above
+            without including it in the method signature.
             """
             on_progress_update(dict(progress_bar_id=self.progress_bar_id, format_dict=format_dict))
 

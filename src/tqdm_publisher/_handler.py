@@ -22,6 +22,9 @@ class TQDMProgressHandler:
             This is the injection called on every update of the progress bar.
 
             It triggers the announcement event over all listeners on each update of the progress bar.
+
+            It must be defined inside this local scope to communicate the `additional_metadata` from the level above
+            without including it in the method signature.
             """
             self._announce(message=dict(**progress_update, **additional_metadata))
 
