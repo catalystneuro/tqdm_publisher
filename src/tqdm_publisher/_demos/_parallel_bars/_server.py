@@ -220,7 +220,7 @@ def run_parallel_bar_demo() -> None:
 
 
 def _run_parallel_bars_demo(port: str, host: str):
-    URL = f"http://{HOST}:{PORT}"
+    URL = f"http://{host}:{port}"
 
     request_id = uuid.uuid4()
     run_parallel_processes(all_task_times=TASK_TIMES, request_id=request_id, url=URL)
