@@ -36,8 +36,8 @@ WEBSOCKETS = {}
 progress_handler = TQDMProgressHandler()
 
 
-def forward_updates_over_sse(request_id, id, n, total, **kwargs):
-    progress_handler._announce(dict(request_id=request_id, id=id, format_dict=dict(n=n, total=total)))
+def forward_updates_over_sse(request_id, id, format_dict):
+    progress_handler._announce(dict(request_id=request_id, id=id, format_dict=format_dict))
 
 
 class ThreadedHTTPServer:
@@ -53,13 +53,13 @@ class ThreadedHTTPServer:
         thread.start()
 
 
-def forward_to_http_server(url: str, request_id: str, progress_bar_id: int, n: int, total: int, **kwargs):
+def forward_to_http_server(url: str, request_id: str, progress_bar_id: int, format_dict: dict):
     """
     This is the parallel callback definition.
     Its parameters are attributes of a tqdm instance and their values are what a typical default tqdm printout
     to console would contain (update step `n` out of `total` iterations).
     """
-    json_data = json.dumps(obj=dict(request_id=request_id, id=str(progress_bar_id), data=dict(n=n, total=total)))
+    json_data = json.dumps(obj=dict(request_id=request_id, id=str(progress_bar_id), data=format_dict))
 
     requests.post(url=url, data=json_data, headers={"Content-Type": "application/json"})
 
@@ -93,13 +93,13 @@ def _run_sleep_tasks_in_subprocess(
     sub_progress_bar = TQDMPublisher(
         iterable=task_times,
         position=iteration_index + 1,
-        desc=f"Progress on iteration {iteration_index} ({id})",
+        desc=f"Progress on iteration {iteration_index} ({subprogress_bar_id})",
         leave=False,
     )
 
     sub_progress_bar.subscribe(
         lambda format_dict: forward_to_http_server(
-            url=url, request_id=request_id, progress_bar_id=subprogress_bar_id, **format_dict
+            url=url, request_id=request_id, progress_bar_id=subprogress_bar_id, format_dict=format_dict
         )
     )
 
@@ -126,12 +126,14 @@ def run_parallel_processes(request_id, url: str):
 
         total_tasks_iterable = as_completed(futures)
         total_tasks_progress_bar = TQDMPublisher(
-            iterable=total_tasks_iterable, total=len(TASK_TIMES), desc="Total tasks completed"
+            iterable=total_tasks_iterable, 
+            total=len(TASK_TIMES), 
+            desc=f"Total tasks completed for {request_id}"
         )
 
         total_tasks_progress_bar.subscribe(
             lambda format_dict: forward_to_http_server(
-                url=url, request_id=request_id, progress_bar_id=request_id, **format_dict
+                url=url, request_id=request_id, progress_bar_id=request_id, format_dict=format_dict
             )
         )
 
@@ -197,8 +199,8 @@ async def start_server(port):
     # await asyncio.Future()
 
     # DEMO TWO: Queue
-    def update_queue(request_id, id, n, total, **kwargs):
-        forward_updates_over_sse(request_id, id, n, total)
+    def update_queue(request_id, id, format_dict):
+        forward_updates_over_sse(request_id, id, format_dict)
 
     http_server = ThreadedHTTPServer(port=PORT, callback=update_queue)
     http_server.start()

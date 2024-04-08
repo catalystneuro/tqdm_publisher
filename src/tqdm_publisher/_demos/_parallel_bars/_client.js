@@ -1,49 +1,13 @@
 import { EventSourceManager } from '../utils/EventSourceManager.js';
 import { WebSocketManager } from '../utils/WebSocketManager.js';
-import { createProgressBar } from '../utils/elements.js';
+import { getBar } from '../utils/elements.js';
 
-const bars = {} // Track progress bars
-const requests = {} // Track request containers
-
-function getRequestContainer(request_id) {
-    const existing = requests[request_id]
-    if (existing) return existing;
-
-    // Create a new container for the progress bar
-    const container = document.createElement('div');
-    container.id = request_id;
-    container.classList.add('request-container');
-    const h2 = document.createElement('h2');
-    h2.innerText = `Request ID: ${request_id}`;
-    container.append(h2);
-    document.body.append(container);
-    const barContainer = document.createElement('div');
-    barContainer.classList.add('bar-container');
-    container.append(barContainer);
-    requests[request_id] = barContainer;
-
-    return barContainer;
-}
-
-// Create and/or render a progress bar
-const getBar = (request_id, id) => {
-
-    if (bars[id]) return bars[id];
-
-    const container = getRequestContainer(request_id);
-    const bar = createProgressBar(container);
-
-    bar.parentElement.setAttribute('data-small', request_id !== id); // Add a small style to the progress bar if it is not the main request bar
-
-    return bars[id] = bar;
-
-}
 
 // Update the specified progress bar when a message is received from the server
 const onProgressUpdate = (event) => {
     const { request_id, id, format_dict } = JSON.parse(event.data);
-    const bar = getBar(request_id, id);
-    bar.style.width = 100 * (format_dict.n / format_dict.total) + '%';
+    const { update } = getBar(request_id, id);
+    update(format_dict, { request_id, id });
 }
 
 // Create a new message client

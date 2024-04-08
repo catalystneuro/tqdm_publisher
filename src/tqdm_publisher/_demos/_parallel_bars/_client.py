@@ -15,8 +15,8 @@ def find_free_port():
         return s.getsockname()[1]  # Return the port number assigned
 
 
-def GLOBAL_CALLBACK(request_id, id, n, total, **kwargs):
-    print("Global Update", request_id, id, f"{n}/{total}")
+def GLOBAL_CALLBACK(request_id, id, format_dict):
+    print("Global Update", request_id, id, f"{format_dict['n']}/{format_dict['total']}")
 
 
 def create_http_server(port: int, callback):
@@ -25,7 +25,7 @@ def create_http_server(port: int, callback):
         def do_POST(self):
             content_length = int(self.headers["Content-Length"])
             post_data = json.loads(self.rfile.read(content_length).decode("utf-8"))
-            callback(post_data["request_id"], post_data["id"], **post_data["data"])
+            callback(post_data["request_id"], post_data["id"], post_data["data"])
             self.send_response(200)
             self.end_headers()
 

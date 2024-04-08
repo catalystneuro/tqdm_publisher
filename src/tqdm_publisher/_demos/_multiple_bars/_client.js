@@ -6,7 +6,9 @@ const bars = {} // Track progress bars
 // Update the specified progress bar when a message is received from the server
 const onProgressUpdate = (event) => {
     const { request_id, format_dict } = JSON.parse(event.data);
-    bars[request_id].style.width = 100 * (format_dict.n / format_dict.total) + '%';
+    const { update } = bars[request_id];
+    update(format_dict);
+
 }
 
 // Create a new WebSocket client

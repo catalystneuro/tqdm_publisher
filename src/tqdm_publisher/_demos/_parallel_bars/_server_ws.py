@@ -6,7 +6,7 @@ import sys
 import threading
 import time
 import uuid
-from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from typing import List
 
 import requests
@@ -37,7 +37,7 @@ WEBSOCKETS = {}
 progress_handler = TQDMProgressHandler()
 
 
-def forward_updates_over_websocket(request_id, id, n, total, **kwargs):
+def forward_updates_over_websocket(request_id, id, format_dict):
     ws = WEBSOCKETS.get(request_id)
 
     if ws:
@@ -46,7 +46,7 @@ def forward_updates_over_websocket(request_id, id, n, total, **kwargs):
             ws["ref"].send(
                 message=json.dumps(
                     obj=dict(
-                        format_dict=dict(n=n, total=total),
+                        format_dict=format_dict,
                         id=id,
                         request_id=request_id,
                     )
@@ -82,20 +82,22 @@ class ThreadedQueueTask:
         thread.start()
 
 
-def forward_to_http_server(url: str, request_id: str, id: int, n: int, total: int, **kwargs):
+def forward_to_http_server(url: str, request_id: str, id: int, format_dict: dict):
     """
     This is the parallel callback definition.
     Its parameters are attributes of a tqdm instance and their values are what a typical default tqdm printout
     to console would contain (update step `n` out of `total` iterations).
     """
-    json_data = json.dumps(obj=dict(request_id=request_id, id=str(id), data=dict(n=n, total=total)))
+    json_data = json.dumps(obj=dict(request_id=request_id, id=str(id), data=format_dict))
 
     requests.post(url=url, data=json_data, headers={"Content-Type": "application/json"})
 
 
 def _run_sleep_tasks_in_subprocess(
-    args,
-    # task_times: List[float], iteration_index: int, id: int, url: str
+     task_times: List[float],
+    iteration_index: int,
+    request_id: str,
+    url: str,
 ):
     """
     Run a 'task' that takes a certain amount of time to run on each worker.
@@ -115,8 +117,6 @@ def _run_sleep_tasks_in_subprocess(
         The localhost URL to sent progress updates to.
     """
 
-    task_times, iteration_index, request_id, url = args
-
     id = uuid.uuid4()
 
     sub_progress_bar = TQDMPublisher(
@@ -126,7 +126,7 @@ def _run_sleep_tasks_in_subprocess(
         leave=False,
     )
 
-    sub_progress_bar.subscribe(lambda format_dict: forward_to_http_server(url, request_id, id, **format_dict))
+    sub_progress_bar.subscribe(lambda format_dict: forward_to_http_server(url, request_id, id, format_dict))
 
     for sleep_time in sub_progress_bar:
         time.sleep(sleep_time)
@@ -134,20 +134,36 @@ def _run_sleep_tasks_in_subprocess(
 
 def run_parallel_processes(request_id, url: str):
 
+    futures = list()
     with ProcessPoolExecutor(max_workers=N_JOBS) as executor:
 
-        # Assign the parallel jobs
-        job_map = executor.map(
-            _run_sleep_tasks_in_subprocess,
-            [(task_times, iteration_index, request_id, url) for iteration_index, task_times in enumerate(TASK_TIMES)],
+        # # Assign the parallel jobs
+        for iteration_index, task_times in enumerate(TASK_TIMES):
+            futures.append(
+                executor.submit(
+                    _run_sleep_tasks_in_subprocess,
+                    task_times=task_times,
+                    iteration_index=iteration_index,
+                    request_id=request_id,
+                    url=url,
+                )
+            )
+
+        total_tasks_iterable = as_completed(futures)
+        total_tasks_progress_bar = TQDMPublisher(
+            iterable=total_tasks_iterable, 
+            total=len(TASK_TIMES), 
+            desc=f"Total tasks completed for {request_id}"
         )
 
-        # Send initialization for pool progress bar
-        forward_to_http_server(url, request_id, id=request_id, n=0, total=len(TASK_TIMES))
+        total_tasks_progress_bar.subscribe(
+            lambda format_dict: forward_to_http_server(
+                url=url, request_id=request_id, id=request_id, format_dict=format_dict
+            )
+        )
 
-        for _ in job_map:
+        for _ in total_tasks_progress_bar:
             pass
-
 
 WEBSOCKETS = {}
 
@@ -176,14 +192,8 @@ async def spawn_server() -> None:
 
     async with websockets.serve(ws_handler=lambda websocket: handler(URL, websocket), host="", port=3768):
 
-        # # DEMO ONE: Direct updates from HTTP server
-        # http_server = ThreadedHTTPServer(port=PORT, callback=forward_updates_over_websocket)
-        # http_server.start()
-        # await asyncio.Future()
-
-        # DEMO TWO: Queue
-        def update_queue(request_id, id, n, total, **kwargs):
-            progress_handler._announce(dict(request_id=request_id, id=id, n=n, total=total))
+        def update_queue(request_id, id, format_dict):
+            progress_handler._announce(dict(request_id=request_id, id=id, format_dict=format_dict))
 
         http_server = ThreadedHTTPServer(port=PORT, callback=update_queue)
         http_server.start()
