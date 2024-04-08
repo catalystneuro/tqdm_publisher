@@ -2,12 +2,12 @@ import asyncio
 
 import pytest
 
-from tqdm_publisher import TQDMPublisher
+from tqdm_publisher import TQDMProgressPublisher
 from tqdm_publisher.testing import create_tasks
 
 
 def test_initialization():
-    publisher = TQDMPublisher()
+    publisher = TQDMProgressPublisher()
     assert len(publisher.callbacks) == 0
 
 
@@ -27,7 +27,7 @@ async def test_subscription_and_callback_execution():
         assert "n" in data and "total" in data
 
     tasks = create_tasks()
-    publisher = TQDMPublisher(asyncio.as_completed(tasks), total=len(tasks))
+    publisher = TQDMProgressPublisher(asyncio.as_completed(tasks), total=len(tasks))
 
     n_subscriptions = 10
     for i in range(n_subscriptions):
@@ -51,7 +51,7 @@ def test_unsubscription():
         pass
 
     tasks = []
-    publisher = TQDMPublisher(asyncio.as_completed(tasks), total=len(tasks))
+    publisher = TQDMProgressPublisher(asyncio.as_completed(tasks), total=len(tasks))
     callback_id = publisher.subscribe(dummy_callback)
     result = publisher.unsubscribe(callback_id)
     assert result == True

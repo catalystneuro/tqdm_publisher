@@ -12,7 +12,7 @@ from typing import List
 import requests
 import websockets
 
-from tqdm_publisher import TQDMProgressHandler, TQDMPublisher
+from tqdm_publisher import TQDMProgressHandler, TQDMProgressPublisher
 from tqdm_publisher._demos._parallel_bars._client import (
     create_http_server,
     find_free_port,
@@ -119,7 +119,7 @@ def _run_sleep_tasks_in_subprocess(
 
     id = uuid.uuid4()
 
-    sub_progress_bar = TQDMPublisher(
+    sub_progress_bar = TQDMProgressPublisher(
         iterable=task_times,
         position=iteration_index + 1,
         desc=f"Progress on iteration {iteration_index} ({id})",
@@ -132,7 +132,7 @@ def _run_sleep_tasks_in_subprocess(
         time.sleep(sleep_time)
 
 
-def run_parallel_processes(request_id, url: str):
+def run_parallel_processes(*, request_id: str, url: str):
 
     with ProcessPoolExecutor(max_workers=N_JOBS) as executor:
 
@@ -222,4 +222,4 @@ if __name__ == "__main__":
 
     # Just run the parallel processes
     request_id = uuid.uuid4()
-    run_parallel_processes(request_id, URL)
+    run_parallel_processes(request_id=request_id, url=URL)

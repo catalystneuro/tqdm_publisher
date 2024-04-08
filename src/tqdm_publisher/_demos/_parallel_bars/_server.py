@@ -7,7 +7,7 @@ import threading
 import time
 import uuid
 from concurrent.futures import ProcessPoolExecutor, as_completed
-from typing import List
+from typing import List, Union
 
 import requests
 from flask import Flask, Response, jsonify, request
@@ -93,7 +93,7 @@ def _run_sleep_tasks_in_subprocess(
 
     subprogress_bar_id = uuid.uuid4()
 
-    sub_progress_bar = TQDMPublisher(
+    sub_progress_bar = TQDMProgressPublisher(
         iterable=task_times,
         position=iteration_index + 1,
         desc=f"Progress on iteration {iteration_index} ({id})",
@@ -110,7 +110,7 @@ def _run_sleep_tasks_in_subprocess(
         time.sleep(sleep_time)
 
 
-def run_parallel_processes(all_task_times: List[List[float]], request_id: str, url: str):
+def run_parallel_processes(*, all_task_times: List[List[float]], request_id: str, url: str):
 
     futures = list()
     with ProcessPoolExecutor(max_workers=N_JOBS) as executor:
@@ -128,7 +128,7 @@ def run_parallel_processes(all_task_times: List[List[float]], request_id: str, u
             )
 
         total_tasks_iterable = as_completed(futures)
-        total_tasks_progress_bar = TQDMPublisher(
+        total_tasks_progress_bar = TQDMProgressPublisher(
             iterable=total_tasks_iterable, total=len(TASK_TIMES), desc="Total tasks completed"
         )
 
@@ -169,7 +169,7 @@ PORT = find_free_port()
 def start():
     data = json.loads(request.data) if request.data else {}
     request_id = data["request_id"]
-    run_parallel_processes(request_id, f"http://localhost:{PORT}")
+    run_parallel_processes(all_task_times=TASK_TIMES, request_id=request_id, url=f"http://localhost:{PORT}")
     return jsonify({"status": "success"})
 
 
@@ -241,4 +241,4 @@ def _run_parallel_bars_demo(port_flag: bool, host_flag: bool):
 
     # Just run the parallel processes
     request_id = uuid.uuid4()
-    run_parallel_processes(request_id, URL)
+    run_parallel_processes(all_task_times=TASK_TIMES, request_id=request_id, url=URL)

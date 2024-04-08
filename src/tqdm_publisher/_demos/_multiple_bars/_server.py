@@ -44,7 +44,7 @@ async def handler(websocket: websockets.WebSocketServerProtocol) -> None:
             showcase of an alternative approach to defining and scoping the execution.
             """
             all_task_durations_in_seconds = [1.0 for _ in range(10)]  # Ten seconds at one task per second
-            self.progress_bar = tqdm_publisher.TQDMPublisher(iterable=all_task_durations_in_seconds)
+            self.progress_bar = tqdm_publisher.TQDMProgressPublisher(iterable=all_task_durations_in_seconds)
             self.progress_bar.subscribe(callback=self.update)
 
             for task_duration in self.progress_bar:
