@@ -219,7 +219,14 @@ def run_parallel_bar_demo() -> None:
     asyncio.run(start_server(port=PORT))
 
 
-def _run_parallel_bars_demo(port_flag: bool, host_flag: bool):
+def _run_parallel_bars_demo(port: str, host: str):
+    URL = f"http://{HOST}:{PORT}"
+
+    request_id = uuid.uuid4()
+    run_parallel_processes(all_task_times=TASK_TIMES, request_id=request_id, url=URL)
+
+
+if __name__ == "main":
     flags_list = sys.argv[1:]
 
     port_flag = "--port" in flags_list
@@ -235,11 +242,4 @@ def _run_parallel_bars_demo(port_flag: bool, host_flag: bool):
     else:
         HOST = "localhost"
 
-    URL = f"http://{HOST}:{PORT}" if port_flag else None
-
-    if URL is None:
-        raise ValueError("URL is not defined.")
-
-    # Just run the parallel processes
-    request_id = uuid.uuid4()
-    run_parallel_processes(all_task_times=TASK_TIMES, request_id=request_id, url=URL)
+    _run_parallel_bars_demo(port=PORT, host=HOST)
