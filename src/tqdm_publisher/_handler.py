@@ -33,8 +33,11 @@ class TQDMProgressHandler:
 
         @garrett - can you describe the expected structure of this message?
         """
-        for listener_index in reversed(range(len(self.listeners))):
-            try:
+        number_of_listeners = len(self.listeners)
+        listener_indices = range(number_of_listeners)
+        listener_indices_from_newest_to_oldest = reversed(listener_indices)
+        for listener_index in listener_indices_from_newest_to_oldest:
+            if not self.listeners[listener_index].full():
                 self.listeners[listener_index].put_nowait(item=message)
-            except queue.Full:
+            else:  # When full, remove the newest listener in the stack
                 del self.listeners[listener_index]
