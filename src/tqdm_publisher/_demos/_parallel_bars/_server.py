@@ -13,7 +13,7 @@ import requests
 from flask import Flask, Response, jsonify, request
 from flask_cors import CORS, cross_origin
 
-from tqdm_publisher import TQDMProgressHandler, TQDMPublisher
+from tqdm_publisher import TQDMProgressHandler, TQDMProgressPublisher
 from tqdm_publisher._demos._parallel_bars._client import (
     create_http_server,
     find_free_port,
@@ -24,20 +24,20 @@ N_JOBS = 3
 # Each outer entry is a list of 'tasks' to perform on a particular worker
 # For demonstration purposes, each in the list of tasks is the length of time in seconds
 # that each iteration of the task takes to run and update the progress bar (emulated by sleeping)
-SECONDS_PER_TASK = 1
+BASE_SECONDS_PER_TASK = 0.5  # The base time for each task; actual time increases proportional to the index of the task
 NUMBER_OF_TASKS_PER_JOB = 6
 TASK_TIMES: List[List[float]] = [
-    [SECONDS_PER_TASK * task_index] * task_index for task_index in range(1, NUMBER_OF_TASKS_PER_JOB + 1)
+    [BASE_SECONDS_PER_TASK * task_index] * NUMBER_OF_TASKS_PER_JOB for task_index in range(1, NUMBER_OF_TASKS_PER_JOB + 1)
 ]
 
 WEBSOCKETS = {}
 
-## NOTE: TQDMProgressHandler cannot be called from a process...so we just use a queue directly
+## NOTE: TQDMProgressHandler cannot be called from a process...so we just use a global reference exposed to each subprocess
 progress_handler = TQDMProgressHandler()
 
 
-def forward_updates_over_sse(request_id, id, n, total, **kwargs):
-    progress_handler._announce(dict(request_id=request_id, id=id, format_dict=dict(n=n, total=total)))
+def forward_updates_over_server_side_events(request_id: str, progress_bar_id: str, n: int, total: int, **kwargs):
+    progress_handler._announce(dict(request_id=request_id, progress_bar_id=progress_bar_id, format_dict=dict(n=n, total=total), **kwargs))
 
 
 class ThreadedHTTPServer:
@@ -107,17 +107,17 @@ def _run_sleep_tasks_in_subprocess(
         time.sleep(sleep_time)
 
 
-def run_parallel_processes(request_id, url: str):
+def run_parallel_processes(all_task_times: List[List[float]], request_id: str, url: str):
 
     futures = list()
     with ProcessPoolExecutor(max_workers=N_JOBS) as executor:
 
         # # Assign the parallel jobs
-        for iteration_index, task_times in enumerate(TASK_TIMES):
+        for iteration_index, task_times_per_job in enumerate(all_task_times):
             futures.append(
                 executor.submit(
                     _run_sleep_tasks_in_subprocess,
-                    task_times=task_times,
+                    task_times=task_times_per_job,
                     iteration_index=iteration_index,
                     request_id=request_id,
                     url=url,
@@ -129,21 +129,23 @@ def run_parallel_processes(request_id, url: str):
             iterable=total_tasks_iterable, total=len(TASK_TIMES), desc="Total tasks completed"
         )
 
+        # The 'total' progress bar bas an ID equivalent to the request ID
         total_tasks_progress_bar.subscribe(
             lambda format_dict: forward_to_http_server(
                 url=url, request_id=request_id, progress_bar_id=request_id, **format_dict
             )
         )
 
+        # Trigger the deployment of the parallel jobs
         for _ in total_tasks_progress_bar:
             pass
 
 
-def format_sse(data: str, event=None) -> str:
-    msg = f"data: {json.dumps(data)}\n\n"
+def format_sse(data: str, event: Union[str, None]=None) -> str:
+    message = f"data: {json.dumps(data)}\n\n"
     if event is not None:
-        msg = f"event: {event}\n{msg}"
-    return msg
+        message = f"event: {event}\n{message}"
+    return message
 
 
 def listen_to_events():
@@ -197,8 +199,8 @@ async def start_server(port):
     # await asyncio.Future()
 
     # DEMO TWO: Queue
-    def update_queue(request_id, id, n, total, **kwargs):
-        forward_updates_over_sse(request_id, id, n, total)
+    def update_queue(request_id: str, progress_bar_id : str, n: int, total: int, **kwargs):
+        forward_updates_over_server_side_events(request_id=request_id, progress_bar_id=progress_bar_id, n=n, total=total)
 
     http_server = ThreadedHTTPServer(port=PORT, callback=update_queue)
     http_server.start()
@@ -207,8 +209,8 @@ async def start_server(port):
 
 
 def run_parallel_bar_demo() -> None:
-    """Asynchronously start the servers"""
-    asyncio.run(start_server(PORT))
+    """Asynchronously start the servers."""
+    asyncio.run(start_server(port=PORT))
 
 
 if __name__ == "__main__":

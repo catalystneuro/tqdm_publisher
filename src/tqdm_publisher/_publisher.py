@@ -4,10 +4,10 @@ from uuid import uuid4
 from tqdm import tqdm as base_tqdm
 
 
-class TQDMPublisher(base_tqdm):
+class TQDMProgressPublisher(base_tqdm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.id = str(uuid4())
+        self.progress_bar_id = str(uuid4())
         self.callbacks = dict()
 
     # Override the update method to run callbacks
@@ -19,7 +19,7 @@ class TQDMPublisher(base_tqdm):
 
         return displayed
 
-    def subscribe(self, callback: callable):
+    def subscribe(self, callback: callable) -> str:
         """
         Subscribe to updates from the progress bar.
 
@@ -37,7 +37,7 @@ class TQDMPublisher(base_tqdm):
 
         Returns
         -------
-        str
+        callback_id : str
             A unique identifier for the callback. This ID is a UUID string and can be used
             to reference the registered callback in future operations.
 
@@ -55,7 +55,7 @@ class TQDMPublisher(base_tqdm):
         self.callbacks[callback_id] = callback
         return callback_id
 
-    def unsubscribe(self, callback_id: str):
+    def unsubscribe(self, callback_id: str) -> bool:
         """
         Unsubscribe a previously registered callback from the progress bar updates.
 
@@ -72,7 +72,7 @@ class TQDMPublisher(base_tqdm):
 
         Returns
         -------
-        bool
+        success : bool
             Returns True if the callback was successfully removed, or False if no callback was
             found with the given ID.
 

@@ -1,27 +1,42 @@
 import queue
+from typing import List, Iterable, Any, Dict
 
 from ._subscriber import TQDMProgressSubscriber
 
 
 class TQDMProgressHandler:
     def __init__(self):
-        self.listeners = []
+        self.listeners: List[queue.Queue] = []
 
-    def listen(self):
-        q = queue.Queue(maxsize=25)
-        self.listeners.append(q)
-        return q
+    def listen(self) -> queue.Queue
+        new_queue = queue.Queue(maxsize=25)
+        self.listeners.append(new_queue)
+        return new_queue
 
-    def create(self, iterable, additional_metadata: dict = dict(), **tqdm_kwargs):
+    def create_progress_subscriber(self, iterable: Iterable[Any], additional_metadata: dict = dict(), **tqdm_kwargs) -> TQDMProgressSubscriber:
+
+        def on_progress_update(progress_update: dict):
+            """
+            This is the injection called on every update of the progress bar.
+
+            It triggers the announcement event over all listeners on each update of the progress bar.
+            """
+            self._announce(message=dict(**progress_update, **additional_metadata))
+
         return TQDMProgressSubscriber(
-            iterable,
-            lambda progress_update: self._announce(dict(**progress_update, **additional_metadata)),
-            **tqdm_kwargs,
+            iterable=iterable,
+            on_progress_update=on_progress_update,
+            **tqdm_kwargs
         )
 
-    def _announce(self, msg):
-        for i in reversed(range(len(self.listeners))):
+    def _announce(self, message: Dict[Any, Any]):
+        """
+        Announce a message to all listeners.
+
+        @garrett - can you describe the expected structure of this message?
+        """
+        for listener_index in reversed(range(len(self.listeners))):
             try:
-                self.listeners[i].put_nowait(msg)
+                self.listeners[listener_index].put_nowait(item=message)
             except queue.Full:
-                del self.listeners[i]
+                del self.listeners[listener_index]
