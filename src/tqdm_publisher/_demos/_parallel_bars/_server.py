@@ -27,7 +27,8 @@ N_JOBS = 3
 BASE_SECONDS_PER_TASK = 0.5  # The base time for each task; actual time increases proportional to the index of the task
 NUMBER_OF_TASKS_PER_JOB = 6
 TASK_TIMES: List[List[float]] = [
-    [BASE_SECONDS_PER_TASK * task_index] * NUMBER_OF_TASKS_PER_JOB for task_index in range(1, NUMBER_OF_TASKS_PER_JOB + 1)
+    [BASE_SECONDS_PER_TASK * task_index] * NUMBER_OF_TASKS_PER_JOB
+    for task_index in range(1, NUMBER_OF_TASKS_PER_JOB + 1)
 ]
 
 WEBSOCKETS = {}
@@ -37,7 +38,9 @@ progress_handler = TQDMProgressHandler()
 
 
 def forward_updates_over_server_side_events(request_id: str, progress_bar_id: str, n: int, total: int, **kwargs):
-    progress_handler._announce(dict(request_id=request_id, progress_bar_id=progress_bar_id, format_dict=dict(n=n, total=total), **kwargs))
+    progress_handler._announce(
+        dict(request_id=request_id, progress_bar_id=progress_bar_id, format_dict=dict(n=n, total=total), **kwargs)
+    )
 
 
 class ThreadedHTTPServer:
@@ -141,7 +144,7 @@ def run_parallel_processes(all_task_times: List[List[float]], request_id: str, u
             pass
 
 
-def format_sse(data: str, event: Union[str, None]=None) -> str:
+def format_sse(data: str, event: Union[str, None] = None) -> str:
     message = f"data: {json.dumps(data)}\n\n"
     if event is not None:
         message = f"event: {event}\n{message}"
@@ -199,8 +202,10 @@ async def start_server(port):
     # await asyncio.Future()
 
     # DEMO TWO: Queue
-    def update_queue(request_id: str, progress_bar_id : str, n: int, total: int, **kwargs):
-        forward_updates_over_server_side_events(request_id=request_id, progress_bar_id=progress_bar_id, n=n, total=total)
+    def update_queue(request_id: str, progress_bar_id: str, n: int, total: int, **kwargs):
+        forward_updates_over_server_side_events(
+            request_id=request_id, progress_bar_id=progress_bar_id, n=n, total=total
+        )
 
     http_server = ThreadedHTTPServer(port=PORT, callback=update_queue)
     http_server.start()
@@ -213,8 +218,7 @@ def run_parallel_bar_demo() -> None:
     asyncio.run(start_server(port=PORT))
 
 
-if __name__ == "__main__":
-
+def _run_parallel_bars_demo(port_flag: bool, host_flag: bool):
     flags_list = sys.argv[1:]
 
     port_flag = "--port" in flags_list

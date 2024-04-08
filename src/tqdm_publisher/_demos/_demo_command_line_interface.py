@@ -54,6 +54,5 @@ def _command_line_interface():
         webbrowser.open_new_tab(f"http://localhost:{CLIENT_PORT}/{client_relative_path}")
 
         demo_info["server"]()
-
     else:
         print(f"{command} is an invalid command.")
