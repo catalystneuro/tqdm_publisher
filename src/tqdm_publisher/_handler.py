@@ -34,6 +34,10 @@ class TQDMProgressHandler:
         """
         Announce a message to all listeners.
 
+        This message can be any dictionary. But, when used internally, is 
+        expected to contain the progress_bar_id and format_dict of the TQDMProgressSubscriber class,
+        as well as any additional metadata supplied by the create_progress_subscriber method.
+
         @garrett - can you describe the expected structure of this message?
         """
         number_of_listeners = len(self.listeners)

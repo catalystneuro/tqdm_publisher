@@ -87,7 +87,7 @@ def _run_sleep_tasks_in_subprocess(
         The index of this task in the list of all tasks from the buffer map.
         Each index would map to a different tqdm position.
     request_id : int
-        Identifier of the request.
+        Identifier of the request, provided by the client.
     url : str
         The localhost URL to sent progress updates to.
     """
