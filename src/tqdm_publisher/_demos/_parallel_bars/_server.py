@@ -142,11 +142,52 @@ def run_parallel_processes(*, all_task_times: List[List[float]], request_id: str
             pass
 
 
-def format_sse(data: str, event: Union[str, None] = None) -> str:
-    message = f"data: {json.dumps(data)}\n\n"
+def format_server_side_events(*, data: str, event: Union[str, None] = None) -> str:
+    """
+    Format multiple `data` and `event` type server-side events in a way the frontend expects.
+
+    With reference to the following demonstration of frontend elements.
+
+    ```javascript
+    const server_side_event = new EventSource("/api/v1/sse");
+
+    /*
+     * This will listen only for events
+     * similar to the following:
+     *
+     * event: notice
+     * data: useful data
+     * id: someid
+     */
+    server_side_event.addEventListener("notice", (event) => {
+      console.log(event.data);
+    });
+
+    /*
+     * Similarly, this will listen for events
+     * with the field `event: update`
+     */
+    server_side_event.addEventListener("update", (event) => {
+      console.log(event.data);
+    });
+
+    /*
+     * The event "message" is a special case, as it
+     * will capture events without an event field
+     * as well as events that have the specific type
+     * `event: message` It will not trigger on any
+     * other event type.
+     */
+    server_side_event.addEventListener("message", (event) => {
+      console.log(event.data);
+    });
+    ```
+    """
+    all_events = ""
     if event is not None:
-        message = f"event: {event}\n{message}"
-    return message
+        all_events += f"event: {event}\n"
+    all_events += f"data: {data}\n\n"
+    return all_events
 
 
 def listen_to_events():
