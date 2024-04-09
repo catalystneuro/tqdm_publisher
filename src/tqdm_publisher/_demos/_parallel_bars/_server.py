@@ -145,7 +145,7 @@ def run_parallel_processes(*, all_task_times: List[List[float]], request_id: str
             pass
 
 
-def format_server_side_events(*, data: str, event: Union[str, None] = "message") -> str:
+def format_server_side_events(*, data: str, event: str = "message") -> str:
     """
     Format multiple `data` and `event` type server-side events in a way expected by Server-Sent Events.
 
