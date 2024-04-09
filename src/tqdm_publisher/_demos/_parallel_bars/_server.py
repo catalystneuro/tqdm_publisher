@@ -145,9 +145,9 @@ def run_parallel_processes(*, all_task_times: List[List[float]], request_id: str
             pass
 
 
-def format_server_side_events(*, data: str, event: Union[str, None] = None) -> str:
+def format_server_side_events(*, data: str, event: Union[str, None] = "message") -> str:
     """
-    Format multiple `data` and `event` type server-side events in a way the frontend expects.
+    Format multiple `data` and `event` type server-side events in a way expected by Server-Sent Events.
 
     With reference to the following demonstration of frontend elements.
 
@@ -186,11 +186,11 @@ def format_server_side_events(*, data: str, event: Union[str, None] = None) -> s
     });
     ```
     """
-    all_events = ""
+    message = ""
     if event is not None:
-        all_events += f"event: {event}\n"
-    all_events += f"data: {data}\n\n"
-    return all_events
+        message += f"event: {event}\n"
+    message += f"data: {data}\n\n"
+    return message
 
 
 def listen_to_events():
