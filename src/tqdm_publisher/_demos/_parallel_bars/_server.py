@@ -37,7 +37,7 @@ WEBSOCKETS = {}
 progress_handler = TQDMProgressHandler()
 
 
-def forward_updates_over_server_side_events(request_id: str, progress_bar_id: str, n: int, total: int, **kwargs):
+def forward_updates_over_server_sent_events(request_id: str, progress_bar_id: str, n: int, total: int, **kwargs):
     # TODO: shouldn't this line use `create_progress_subscriber`? Otherwise consider making `.accounce` non-private
     progress_handler._announce(
         dict(request_id=request_id, progress_bar_id=progress_bar_id, format_dict=dict(n=n, total=total), **kwargs)
@@ -145,14 +145,14 @@ def run_parallel_processes(*, all_task_times: List[List[float]], request_id: str
             pass
 
 
-def format_server_side_events(*, data: str, event: str = "message") -> str:
+def format_server_sent_events(*, data: str, event: str = "message") -> str:
     """
-    Format multiple `data` and `event` type server-side events in a way expected by Server-Sent Events.
+    Format multiple `data` and `event` type server-sent events in a way expected by the EventSource browser implementation.
 
     With reference to the following demonstration of frontend elements.
 
     ```javascript
-    const server_side_event = new EventSource("/api/v1/sse");
+    const server_sent_event = new EventSource("/api/v1/sse");
 
     /*
      * This will listen only for events
@@ -162,7 +162,7 @@ def format_server_side_events(*, data: str, event: str = "message") -> str:
      * data: useful data
      * id: someid
      */
-    server_side_event.addEventListener("notice", (event) => {
+    server_sent_event.addEventListener("notice", (event) => {
       console.log(event.data);
     });
 
@@ -170,7 +170,7 @@ def format_server_side_events(*, data: str, event: str = "message") -> str:
      * Similarly, this will listen for events
      * with the field `event: update`
      */
-    server_side_event.addEventListener("update", (event) => {
+    server_sent_event.addEventListener("update", (event) => {
       console.log(event.data);
     });
 
@@ -181,7 +181,7 @@ def format_server_side_events(*, data: str, event: str = "message") -> str:
      * `event: message` It will not trigger on any
      * other event type.
      */
-    server_side_event.addEventListener("message", (event) => {
+    server_sent_event.addEventListener("message", (event) => {
       console.log(event.data);
     });
     ```
@@ -197,7 +197,7 @@ def listen_to_events():
     messages = progress_handler.listen()  # returns a queue.Queue
     while True:
         msg = messages.get()  # blocks until a new message arrives
-        yield format_sse(msg)
+        yield format_server_sent_events(msg)
 
 
 app = Flask(__name__)
@@ -245,7 +245,7 @@ async def start_server(port):
 
     # DEMO TWO: Queue
     def update_queue(request_id: str, progress_bar_id: str, n: int, total: int, **kwargs):
-        forward_updates_over_server_side_events(
+        forward_updates_over_server_sent_events(
             request_id=request_id, progress_bar_id=progress_bar_id, n=n, total=total
         )
 
