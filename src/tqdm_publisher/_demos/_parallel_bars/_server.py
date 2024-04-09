@@ -165,7 +165,7 @@ def format_server_side_events(*, data: str, event: Union[str, None] = None) -> s
     server_side_event.addEventListener("notice", (event) => {
       console.log(event.data);
     });
-    
+
     /*
      * Similarly, this will listen for events
      * with the field `event: update`
@@ -173,7 +173,7 @@ def format_server_side_events(*, data: str, event: Union[str, None] = None) -> s
     server_side_event.addEventListener("update", (event) => {
       console.log(event.data);
     });
-    
+
     /*
      * The event "message" is a special case, as it
      * will capture events without an event field
