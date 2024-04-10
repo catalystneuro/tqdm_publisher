@@ -5,9 +5,9 @@ import { getBar } from '../utils/elements.js';
 
 // Update the specified progress bar when a message is received from the server
 const onProgressUpdate = (event) => {
-    const { request_id, id, format_dict } = JSON.parse(event.data);
-    const { update } = getBar(request_id, id);
-    update(format_dict, { request_id, id });
+    const { request_id, progress_bar_id, format_dict } = JSON.parse(event.data);
+    const { update } = getBar(request_id, progress_bar_id);
+    update(format_dict, { request_id, progress_bar_id });
 }
 
 // Create a new message client

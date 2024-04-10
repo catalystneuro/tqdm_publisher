@@ -31,14 +31,12 @@ TASK_TIMES: List[List[float]] = [
     for task_index in range(1, NUMBER_OF_TASKS_PER_JOB + 1)
 ]
 
-WEBSOCKETS = {}
-
-## NOTE: TQDMProgressHandler cannot be called from a process...so we just use a global reference exposed to each subprocess
+## TQDMProgressHandler cannot be called from a process...so we just use a global reference exposed to each subprocess
 progress_handler = TQDMProgressHandler()
 
 
-def forward_updates_over_sse(request_id, id, format_dict):
-    progress_handler._announce(dict(request_id=request_id, id=id, format_dict=format_dict))
+def forward_updates_over_server_sent_events(request_id, progress_bar_id, format_dict):
+    progress_handler.announce(dict(request_id=request_id, progress_bar_id=progress_bar_id, format_dict=format_dict))
 
 
 class ThreadedHTTPServer:
@@ -126,8 +124,8 @@ def run_parallel_processes(*, all_task_times: List[List[float]], request_id: str
             )
 
         total_tasks_iterable = as_completed(futures)
-        total_tasks_progress_bar = TQDMPublisher(
-            iterable=total_tasks_iterable, total=len(TASK_TIMES), desc=f"Total tasks completed for {request_id}"
+        total_tasks_progress_bar = TQDMProgressPublisher(
+            iterable=total_tasks_iterable, total=len(all_task_times), desc=f"Total tasks completed for {request_id}"
         )
 
         # The 'total' progress bar bas an ID equivalent to the request ID
@@ -142,14 +140,14 @@ def run_parallel_processes(*, all_task_times: List[List[float]], request_id: str
             pass
 
 
-def format_server_side_events(*, data: str, event: Union[str, None] = None) -> str:
+def format_server_sent_events(*, message_data: str, event_type: str = "message") -> str:
     """
-    Format multiple `data` and `event` type server-side events in a way the frontend expects.
+    Format an `event_type` type server-sent event with `data` in a way expected by the EventSource browser implementation.
 
     With reference to the following demonstration of frontend elements.
 
     ```javascript
-    const server_side_event = new EventSource("/api/v1/sse");
+    const server_sent_event = new EventSource("/api/v1/sse");
 
     /*
      * This will listen only for events
@@ -159,7 +157,7 @@ def format_server_side_events(*, data: str, event: Union[str, None] = None) -> s
      * data: useful data
      * id: someid
      */
-    server_side_event.addEventListener("notice", (event) => {
+    server_sent_event.addEventListener("notice", (event) => {
       console.log(event.data);
     });
 
@@ -167,7 +165,7 @@ def format_server_side_events(*, data: str, event: Union[str, None] = None) -> s
      * Similarly, this will listen for events
      * with the field `event: update`
      */
-    server_side_event.addEventListener("update", (event) => {
+    server_sent_event.addEventListener("update", (event) => {
       console.log(event.data);
     });
 
@@ -178,23 +176,40 @@ def format_server_side_events(*, data: str, event: Union[str, None] = None) -> s
      * `event: message` It will not trigger on any
      * other event type.
      */
-    server_side_event.addEventListener("message", (event) => {
+    server_sent_event.addEventListener("message", (event) => {
       console.log(event.data);
     });
     ```
+
+    Parameters
+    ----------
+    message_data : str
+        The message data to be sent to the client.
+    event_type : str, default="message"
+        The type of event corresponding to the message data.
+
+    Returns
+    -------
+    formatted_message : str
+        The formatted message to be sent to the client.
     """
-    all_events = ""
-    if event is not None:
-        all_events += f"event: {event}\n"
-    all_events += f"data: {data}\n\n"
-    return all_events
+
+    # message = f"event: {event_type}\n" if event_type != "" else ""
+    # message += f"data: {message_data}\n\n"
+    # return message
+
+    message = f"data: {message_data}\n\n"
+    if event_type != "":
+        message = f"event: {event_type}\n{message}"
+    return message
 
 
 def listen_to_events():
     messages = progress_handler.listen()  # returns a queue.Queue
     while True:
-        msg = messages.get()  # blocks until a new message arrives
-        yield format_sse(msg)
+        message_data = messages.get()  # blocks until a new message arrives
+        print("Message data", message_data)
+        yield format_server_sent_events(message_data=json.dumps(message_data))
 
 
 app = Flask(__name__)
@@ -235,8 +250,10 @@ async def start_server(port):
     flask_server = ThreadedFlaskServer(port=3768)
     flask_server.start()
 
-    def update_queue(request_id, id, format_dict):
-        forward_updates_over_sse(request_id, id, format_dict)
+    def update_queue(request_id: str, progress_bar_id: str, format_dict: dict):
+        forward_updates_over_server_sent_events(
+            request_id=request_id, progress_bar_id=progress_bar_id, format_dict=format_dict
+        )
 
     http_server = ThreadedHTTPServer(port=PORT, callback=update_queue)
     http_server.start()
