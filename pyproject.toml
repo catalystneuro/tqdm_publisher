@@ -44,9 +44,10 @@ test = [
 ]
 
 demo = [
-    "websockets==12.0",
-    "flask==2.3.2",
-    "flask-cors==4.0.0"
+    "requests",
+    "websockets",
+    "flask",
+    "flask-cors"
 ]
 
 [project.urls]

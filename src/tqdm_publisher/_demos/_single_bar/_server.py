@@ -15,7 +15,7 @@ def start_progress_bar(*, progress_callback: callable) -> None:
     Defaults are chosen for a deterministic and regular update period of one second for a total time of 10 seconds.
     """
     all_task_durations_in_seconds = [1.0 for _ in range(10)]  # Ten seconds at one second per task
-    progress_bar = tqdm_publisher.TQDMPublisher(iterable=all_task_durations_in_seconds)
+    progress_bar = tqdm_publisher.TQDMProgressPublisher(iterable=all_task_durations_in_seconds)
 
     def run_function_on_progress_update(format_dict: dict) -> None:
         """
@@ -29,7 +29,7 @@ def start_progress_bar(*, progress_callback: callable) -> None:
 
         This specifically requires the `id` of the progress bar and the `format_dict` of the TQDM instance.
         """
-        progress_callback(format_dict=format_dict, progress_bar_id=progress_bar.id)
+        progress_callback(format_dict=format_dict, progress_bar_id=progress_bar.progress_bar_id)
 
     progress_bar.subscribe(callback=run_function_on_progress_update)
 

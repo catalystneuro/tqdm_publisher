@@ -41,8 +41,8 @@ const getBar = (request_id, id) => {
 
 // Update the specified progress bar when a message is received from the server
 const onProgressUpdate = (event) => {
-    const { request_id, id, format_dict } = JSON.parse(event.data);
-    const bar = getBar(request_id, id);
+    const { request_id, progress_bar_id, format_dict } = JSON.parse(event.data);
+    const bar = getBar(request_id, progress_bar_id);
     bar.style.width = 100 * (format_dict.n / format_dict.total) + '%';
 }
 
