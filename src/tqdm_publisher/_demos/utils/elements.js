@@ -26,7 +26,7 @@ export const createProgressBar = (requestContainer = barContainer) => {
     requestContainer.appendChild(container); // Render the progress bar
 
 
-    const update = ( format_dict, { request_id, id }  = {}) => {
+    const update = ( format_dict, { request_id, progress_bar_id }  = {}) => {
 
         const { total, n, elapsed, rate, prefix } = format_dict;
 
@@ -40,9 +40,9 @@ export const createProgressBar = (requestContainer = barContainer) => {
 
         const description = `${prefix ? `${prefix} — ` : ''}${elapsed.toFixed(1)}s elapsed, ${remaining.toFixed(1)}s remaining`;
 
-        if (!request_id || !id) return descriptionEl.innerText = description;
+        if (!request_id || !progress_bar_id) return descriptionEl.innerText = description;
 
-        const resolvedDescriptionEl = request_id === id ? getRequestContainer(request_id).description : descriptionEl;
+        const resolvedDescriptionEl = request_id === progress_bar_id ? getRequestContainer(request_id).description : descriptionEl;
 
         resolvedDescriptionEl.innerText = description
     }
@@ -63,16 +63,16 @@ const BARS = {} // Track progress bars
 const REQUESTS = {} // Track request containers
 
 // Create and/or render a progress bar
-export const getBar = (request_id, id) => {
+export const getBar = (request_id, progress_bar_id) => {
 
-    if (BARS[id]) return BARS[id];
+    if (BARS[progress_bar_id]) return BARS[progress_bar_id];
 
     const bar = createProgressBar(getRequestContainer(request_id).bars);
 
     const { container } = bar;
-    container.setAttribute('data-small', request_id !== id); // Add a small style to the progress bar if it is not the main request bar
+    container.setAttribute('data-small', request_id !== progress_bar_id); // Add a small style to the progress bar if it is not the main request bar
 
-    return BARS[id] = bar;
+    return BARS[progress_bar_id] = bar;
 
 }
 
