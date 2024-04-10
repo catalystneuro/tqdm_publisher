@@ -144,7 +144,7 @@ def run_parallel_processes(*, all_task_times: List[List[float]], request_id: str
 
 def format_server_sent_events(*, message_data: str, event_type: str = "message") -> str:
     """
-    Format a `data` and `event` type server-sent events in a way expected by the EventSource browser implementation.
+    Format an `event_type` type server-sent event with `data` in a way expected by the EventSource browser implementation.
 
     With reference to the following demonstration of frontend elements.
 
