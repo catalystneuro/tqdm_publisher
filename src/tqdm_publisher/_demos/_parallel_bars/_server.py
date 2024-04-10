@@ -198,7 +198,7 @@ def format_server_sent_events(*, message_data: str, event_type: str = "message")
     formatted_message : str
         The formatted message to be sent to the client.
     """
-    message = f"event: {event_type}\n" if event_type is not None else ""
+    message = f"event: {event_type}\n" if event_type != "" else ""
     message += f"data: {message_data}\n\n"
     return message
 
