@@ -39,7 +39,7 @@ progress_handler = TQDMProgressHandler()
 
 def forward_updates_over_server_sent_events(request_id: str, progress_bar_id: str, n: int, total: int, **kwargs):
     # TODO: shouldn't this line use `create_progress_subscriber`? Otherwise consider making `.accounce` non-private
-    progress_handler._announce(
+    progress_handler.announce(
         dict(request_id=request_id, progress_bar_id=progress_bar_id, format_dict=dict(n=n, total=total), **kwargs)
     )
 
@@ -145,9 +145,9 @@ def run_parallel_processes(*, all_task_times: List[List[float]], request_id: str
             pass
 
 
-def format_server_sent_events(*, data: str, event: str = "message") -> str:
+def format_server_sent_events(*, message_data: str, event_type: str = "message") -> str:
     """
-    Format multiple `data` and `event` type server-sent events in a way expected by the EventSource browser implementation.
+    Format a `data` and `event` type server-sent events in a way expected by the EventSource browser implementation.
 
     With reference to the following demonstration of frontend elements.
 
@@ -185,19 +185,29 @@ def format_server_sent_events(*, data: str, event: str = "message") -> str:
       console.log(event.data);
     });
     ```
+
+    Parameters
+    ----------
+    message_data : str
+        The message data to be sent to the client.
+    event_type : str, default="message"
+        The type of event corresponding to the message data.
+
+    Returns
+    -------
+    formatted_message : str
+        The formatted message to be sent to the client.
     """
-    message = ""
-    if event is not None:
-        message += f"event: {event}\n"
-    message += f"data: {data}\n\n"
+    message = f"event: {event_type}\n" if event_type is not None else ""
+    message += f"data: {message_data}\n\n"
     return message
 
 
 def listen_to_events():
     messages = progress_handler.listen()  # returns a queue.Queue
     while True:
-        msg = messages.get()  # blocks until a new message arrives
-        yield format_server_sent_events(msg)
+        message_data = messages.get()  # blocks until a new message arrives
+        yield format_server_sent_events(message_data=message_data)
 
 
 app = Flask(__name__)

@@ -26,11 +26,11 @@ class TQDMProgressHandler:
             It must be defined inside this local scope to communicate the `additional_metadata` from the level above
             without including it in the method signature.
             """
-            self._announce(message=dict(**progress_update, **additional_metadata))
+            self.announce(message=dict(**progress_update, **additional_metadata))
 
         return TQDMProgressSubscriber(iterable=iterable, on_progress_update=on_progress_update, **tqdm_kwargs)
 
-    def _announce(self, message: Dict[Any, Any]):
+    def announce(self, message: Dict[Any, Any]):
         """
         Announce a message to all listeners.
 
