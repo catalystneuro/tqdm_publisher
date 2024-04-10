@@ -31,14 +31,11 @@ TASK_TIMES: List[List[float]] = [
     for task_index in range(1, NUMBER_OF_TASKS_PER_JOB + 1)
 ]
 
-WEBSOCKETS = {}
-
-## NOTE: TQDMProgressHandler cannot be called from a process...so we just use a global reference exposed to each subprocess
+## TQDMProgressHandler cannot be called from a process...so we just use a global reference exposed to each subprocess
 progress_handler = TQDMProgressHandler()
 
 
 def forward_updates_over_server_sent_events(request_id: str, progress_bar_id: str, n: int, total: int, **kwargs):
-    # TODO: shouldn't this line use `create_progress_subscriber`? Otherwise consider making `.accounce` non-private
     progress_handler.announce(
         dict(request_id=request_id, progress_bar_id=progress_bar_id, format_dict=dict(n=n, total=total), **kwargs)
     )
@@ -130,7 +127,7 @@ def run_parallel_processes(*, all_task_times: List[List[float]], request_id: str
 
         total_tasks_iterable = as_completed(futures)
         total_tasks_progress_bar = TQDMProgressPublisher(
-            iterable=total_tasks_iterable, total=len(TASK_TIMES), desc="Total tasks completed"
+            iterable=total_tasks_iterable, total=len(all_task_times), desc="Total tasks completed"
         )
 
         # The 'total' progress bar bas an ID equivalent to the request ID
@@ -198,8 +195,14 @@ def format_server_sent_events(*, message_data: str, event_type: str = "message")
     formatted_message : str
         The formatted message to be sent to the client.
     """
-    message = f"event: {event_type}\n" if event_type != "" else ""
-    message += f"data: {message_data}\n\n"
+
+    # message = f"event: {event_type}\n" if event_type != "" else ""
+    # message += f"data: {message_data}\n\n"
+    # return message
+
+    message = f"data: {message_data}\n\n"
+    if event_type != "":
+        message = f"event: {event_type}\n{message}"
     return message
 
 
@@ -207,7 +210,8 @@ def listen_to_events():
     messages = progress_handler.listen()  # returns a queue.Queue
     while True:
         message_data = messages.get()  # blocks until a new message arrives
-        yield format_server_sent_events(message_data=message_data)
+        print("Message data", message_data)
+        yield format_server_sent_events(message_data=json.dumps(message_data))
 
 
 app = Flask(__name__)
@@ -248,12 +252,7 @@ async def start_server(port):
     flask_server = ThreadedFlaskServer(port=3768)
     flask_server.start()
 
-    # # DEMO ONE: Direct updates from HTTP server
-    # http_server = ThreadedHTTPServer(port=port, callback=forward_updates_over_sse)
-    # http_server.start()
-    # await asyncio.Future()
 
-    # DEMO TWO: Queue
     def update_queue(request_id: str, progress_bar_id: str, n: int, total: int, **kwargs):
         forward_updates_over_server_sent_events(
             request_id=request_id, progress_bar_id=progress_bar_id, n=n, total=total

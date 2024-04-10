@@ -29,7 +29,7 @@ def start_progress_bar(*, progress_callback: callable) -> None:
 
         This specifically requires the `id` of the progress bar and the `format_dict` of the TQDM instance.
         """
-        progress_callback(format_dict=format_dict, progress_bar_id=progress_bar.id)
+        progress_callback(format_dict=format_dict, progress_bar_id=progress_bar.progress_bar_id)
 
     progress_bar.subscribe(callback=run_function_on_progress_update)
 
