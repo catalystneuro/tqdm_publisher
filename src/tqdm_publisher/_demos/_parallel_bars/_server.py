@@ -252,7 +252,6 @@ async def start_server(port):
     flask_server = ThreadedFlaskServer(port=3768)
     flask_server.start()
 
-
     def update_queue(request_id: str, progress_bar_id: str, n: int, total: int, **kwargs):
         forward_updates_over_server_sent_events(
             request_id=request_id, progress_bar_id=progress_bar_id, n=n, total=total

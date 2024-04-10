@@ -94,12 +94,7 @@ def forward_to_http_server(url: str, request_id: str, progress_bar_id: int, n: i
     requests.post(url=url, data=json_data, headers={"Content-Type": "application/json"})
 
 
-def _run_sleep_tasks_in_subprocess(
-    task_times: List[float], 
-    iteration_index: int, 
-    request_id: int, 
-    url: str
-):
+def _run_sleep_tasks_in_subprocess(task_times: List[float], iteration_index: int, request_id: int, url: str):
     """
     Run a 'task' that takes a certain amount of time to run on each worker.
 
@@ -127,7 +122,9 @@ def _run_sleep_tasks_in_subprocess(
         leave=False,
     )
 
-    sub_progress_bar.subscribe(lambda format_dict: forward_to_http_server(url, request_id, subprogress_bar_id, **format_dict))
+    sub_progress_bar.subscribe(
+        lambda format_dict: forward_to_http_server(url, request_id, subprogress_bar_id, **format_dict)
+    )
 
     for sleep_time in sub_progress_bar:
         time.sleep(sleep_time)
@@ -166,6 +163,7 @@ def run_parallel_processes(*, all_task_times: List[List[float]], request_id: str
         for _ in total_tasks_progress_bar:
             pass
 
+
 WEBSOCKETS = {}
 
 
@@ -192,7 +190,7 @@ async def spawn_server() -> None:
     URL = f"http://localhost:{PORT}"
 
     async with websockets.serve(ws_handler=lambda websocket: handler(URL, websocket), host="", port=3768):
-        
+
         def update_queue(request_id, progress_bar_id, n, total, **kwargs):
             progress_handler.announce(dict(request_id=request_id, progress_bar_id=progress_bar_id, n=n, total=total))
 
