@@ -208,7 +208,6 @@ def listen_to_events():
     messages = progress_handler.listen()  # returns a queue.Queue
     while True:
         message_data = messages.get()  # blocks until a new message arrives
-        print("Message data", message_data)
         yield format_server_sent_events(message_data=json.dumps(message_data))
 
 

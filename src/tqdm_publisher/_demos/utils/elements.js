@@ -1,3 +1,7 @@
+
+const BARS = {} // Track progress bars
+const REQUESTS = {} // Track request containers
+
 export const barContainer = document.querySelector('#bars');
 
 // Create a progress bar and append it to the bar container
@@ -58,12 +62,8 @@ export const createProgressBar = (requestContainer = barContainer) => {
     };
 }
 
-
-const BARS = {} // Track progress bars
-const REQUESTS = {} // Track request containers
-
-// Create and/or render a progress bar
-export const getBar = (request_id, progress_bar_id) => {
+// Create + render a progress bar
+export function getBar (request_id, progress_bar_id) {
 
     if (BARS[progress_bar_id]) return BARS[progress_bar_id];
 

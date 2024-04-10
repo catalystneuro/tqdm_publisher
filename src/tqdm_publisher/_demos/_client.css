@@ -104,7 +104,7 @@ small {
     white-space: nowrap;
 }
 
-.bar > div:last-child > small {
+.bar > div:last-child > small:not(:empty) {
     font-size: 0.65rem;
     margin-top: 5px;
 }
