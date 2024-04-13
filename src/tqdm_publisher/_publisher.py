@@ -16,7 +16,7 @@ class TQDMProgressPublisher(base_tqdm):
 
         for callback in self.callbacks.values():
             callback(self.format_dict)
-
+        
         return displayed
 
     def subscribe(self, callback: callable) -> str:
@@ -53,6 +53,7 @@ class TQDMProgressPublisher(base_tqdm):
 
         callback_id = str(uuid4())
         self.callbacks[callback_id] = callback
+        callback(self.format_dict) # Call the callback immediately to show the current state
         return callback_id
 
     def unsubscribe(self, callback_id: str) -> bool:
