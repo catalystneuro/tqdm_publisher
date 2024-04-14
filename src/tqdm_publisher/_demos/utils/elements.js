@@ -42,13 +42,7 @@ export const createProgressBar = (requestContainer = barContainer) => {
 
         const remaining = rate && total ? (total - n) / rate : 0; // Seconds
 
-        const description = `${prefix ? `${prefix} — ` : ''}${elapsed.toFixed(1)}s elapsed, ${remaining.toFixed(1)}s remaining`;
-
-        if (!request_id || !progress_bar_id) return descriptionEl.innerText = description;
-
-        // const resolvedDescriptionEl = request_id === progress_bar_id ? getRequestContainer(request_id).description : descriptionEl;
-        const resolvedDescriptionEl = descriptionEl;
-        resolvedDescriptionEl.innerText = description
+        descriptionEl.innerText = `${prefix ? `${prefix} — ` : ''}${elapsed.toFixed(1)}s elapsed, ${remaining.toFixed(1)}s remaining`;
     }
 
 
