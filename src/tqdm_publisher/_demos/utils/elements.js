@@ -46,8 +46,8 @@ export const createProgressBar = (requestContainer = barContainer) => {
 
         if (!request_id || !progress_bar_id) return descriptionEl.innerText = description;
 
-        const resolvedDescriptionEl = request_id === progress_bar_id ? getRequestContainer(request_id).description : descriptionEl;
-
+        // const resolvedDescriptionEl = request_id === progress_bar_id ? getRequestContainer(request_id).description : descriptionEl;
+        const resolvedDescriptionEl = descriptionEl;
         resolvedDescriptionEl.innerText = description
     }
 
