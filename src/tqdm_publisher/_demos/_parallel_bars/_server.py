@@ -27,7 +27,8 @@ TASK_TIMES: List[List[float]] = [
 ]
 
 ## TQDMProgressHandler cannot be called from a process...so we just use a global reference exposed to each subprocess
-progress_handler = TQDMProgressHandler()    
+progress_handler = TQDMProgressHandler()
+
 
 def forward_to_http_server(url: str, request_id: str, progress_bar_id: int, format_dict: dict):
     """
@@ -191,7 +192,7 @@ def listen_to_events():
 app = Flask(__name__)
 cors = CORS(app)
 app.config["CORS_HEADERS"] = "Content-Type"
-PORT = 3768 # find_free_port()
+PORT = 3768  # find_free_port()
 
 
 @app.route("/start", methods=["POST"])
@@ -217,10 +218,12 @@ def update():
     # Forward updates over Sever-Side Events
     progress_handler.announce(dict(request_id=request_id, progress_bar_id=progress_bar_id, format_dict=format_dict))
 
+
 @app.route("/events", methods=["GET"])
 @cross_origin()
 def events():
     return Response(listen_to_events(), mimetype="text/event-stream")
+
 
 async def start_server(port):
     app.run(host="localhost", port=port)
