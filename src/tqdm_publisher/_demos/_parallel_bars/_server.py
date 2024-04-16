@@ -192,7 +192,7 @@ def listen_to_events():
 app = Flask(__name__)
 cors = CORS(app)
 app.config["CORS_HEADERS"] = "Content-Type"
-PORT = 3768  # find_free_port()
+PORT = 3768
 
 
 @app.route("/start", methods=["POST"])
