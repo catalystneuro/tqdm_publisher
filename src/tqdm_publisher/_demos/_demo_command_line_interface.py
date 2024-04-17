@@ -6,9 +6,6 @@ from pathlib import Path
 
 from tqdm_publisher._demos._multiple_bars._server import run_multiple_bar_demo
 from tqdm_publisher._demos._parallel_bars._server import run_parallel_bar_demo
-from tqdm_publisher._demos._parallel_bars._server_ws import (
-    run_parallel_bar_demo as run_parallel_bar_demo_ws,
-)
 from tqdm_publisher._demos._single_bar._server import run_single_bar_demo
 
 CLIENT_PORT = 1234
@@ -17,7 +14,6 @@ DEMOS = {
     "demo_single": dict(subpath="_single_bar", server=run_single_bar_demo),
     "demo_multiple": dict(subpath="_multiple_bars", server=run_multiple_bar_demo),
     "demo_parallel": dict(subpath="_parallel_bars", server=run_parallel_bar_demo),
-    "demo_parallel_ws": dict(subpath="_parallel_bars", server=run_parallel_bar_demo_ws),
 }
 
 DEMO_BASE_FOLDER_PATH = Path(__file__).parent

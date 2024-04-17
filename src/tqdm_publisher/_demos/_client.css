@@ -1,7 +1,9 @@
+* {
+    box-sizing: border-box;
+}
 
 html, body {
     font-family: sans-serif;
-    box-sizing: border-box;
 }
 
 h1 {
@@ -10,12 +12,23 @@ h1 {
     font-size: 1.5rem;
 }
 
+h2 {
+    margin: 0;
+    padding: 0;
+    font-size: 1.2rem;
+}
+
 header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 20px 0px;
+}
+
+body > header {
     padding: 20px;
 }
+
 
 #bars {
     display: flex;
@@ -23,13 +36,54 @@ header {
     align-items: center;
     gap: 20px;
     flex-wrap: wrap;
+    padding: 0px 20px;
+}
+
+.request-container {
+    width: 100%;
+}
+
+.bar {
+    padding: 10px;
+}
+
+.bar, .progress {
+    width: 100%;
+}
+
+/* Small Bar */
+.bar[data-small="true"] {
+    border-bottom: 1px solid gainsboro;
+}
+
+.bar > div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+
+.bar[data-small="true"] .progress {
+    height: 10px;
+}
+
+.bar[data-small="true"] .progress:last-child {
+    border-bottom: none;
+}
+
+/* Large Bar */
+.bar[data-small="false"] {
+    border-bottom: 1px solid black;
+}
+
+.bar[data-small="false"] .progress {
+    padding: 4px;
 }
 
 .progress {
-    width: 100%;
     height: 20px;
     background-color: #ddd;
-    box-sizing: border-box;
 }
 
 .progress div {
@@ -38,21 +92,19 @@ header {
     width: 0%;
 }
 
-.progress[data-small="true"] {
-    height: 10px;
-    border-bottom: 1px solid gainsboro;
-}
-
-.progress[data-small="true"]:last-child {
-    border-bottom: none;
-}
-
-.progress[data-small="false"] {
-    border-bottom: 1px solid black;
-    padding: 4px;
-}
-
 
 .bar-container {
     border: 1px solid black;
+}
+
+small {
+    font-size: 0.7rem;
+    color: gray;
+    width: min-content;
+    white-space: nowrap;
+}
+
+.bar > div:last-child > small:not(:empty) {
+    font-size: 0.65rem;
+    margin-top: 5px;
 }

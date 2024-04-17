@@ -35,10 +35,8 @@ TASK_TIMES: List[List[float]] = [
 progress_handler = TQDMProgressHandler()
 
 
-def forward_updates_over_server_sent_events(request_id: str, progress_bar_id: str, n: int, total: int, **kwargs):
-    progress_handler.announce(
-        dict(request_id=request_id, progress_bar_id=progress_bar_id, format_dict=dict(n=n, total=total), **kwargs)
-    )
+def forward_updates_over_server_sent_events(request_id, progress_bar_id, format_dict):
+    progress_handler.announce(dict(request_id=request_id, progress_bar_id=progress_bar_id, format_dict=format_dict))
 
 
 class ThreadedHTTPServer:
@@ -54,13 +52,13 @@ class ThreadedHTTPServer:
         thread.start()
 
 
-def forward_to_http_server(url: str, request_id: str, progress_bar_id: int, n: int, total: int, **kwargs):
+def forward_to_http_server(url: str, request_id: str, progress_bar_id: int, format_dict: dict):
     """
     This is the parallel callback definition.
     Its parameters are attributes of a tqdm instance and their values are what a typical default tqdm printout
     to console would contain (update step `n` out of `total` iterations).
     """
-    json_data = json.dumps(obj=dict(request_id=request_id, id=str(progress_bar_id), data=dict(n=n, total=total)))
+    json_data = json.dumps(obj=dict(request_id=request_id, id=str(progress_bar_id), data=format_dict))
 
     requests.post(url=url, data=json_data, headers={"Content-Type": "application/json"})
 
@@ -94,13 +92,13 @@ def _run_sleep_tasks_in_subprocess(
     sub_progress_bar = TQDMProgressPublisher(
         iterable=task_times,
         position=iteration_index + 1,
-        desc=f"Progress on iteration {iteration_index} ({id})",
+        desc=f"Progress on iteration {iteration_index} ({subprogress_bar_id})",
         leave=False,
     )
 
     sub_progress_bar.subscribe(
         lambda format_dict: forward_to_http_server(
-            url=url, request_id=request_id, progress_bar_id=subprogress_bar_id, **format_dict
+            url=url, request_id=request_id, progress_bar_id=subprogress_bar_id, format_dict=format_dict
         )
     )
 
@@ -127,13 +125,13 @@ def run_parallel_processes(*, all_task_times: List[List[float]], request_id: str
 
         total_tasks_iterable = as_completed(futures)
         total_tasks_progress_bar = TQDMProgressPublisher(
-            iterable=total_tasks_iterable, total=len(all_task_times), desc="Total tasks completed"
+            iterable=total_tasks_iterable, total=len(all_task_times), desc=f"Total tasks completed for {request_id}"
         )
 
         # The 'total' progress bar bas an ID equivalent to the request ID
         total_tasks_progress_bar.subscribe(
             lambda format_dict: forward_to_http_server(
-                url=url, request_id=request_id, progress_bar_id=request_id, **format_dict
+                url=url, request_id=request_id, progress_bar_id=request_id, format_dict=format_dict
             )
         )
 
@@ -210,7 +208,6 @@ def listen_to_events():
     messages = progress_handler.listen()  # returns a queue.Queue
     while True:
         message_data = messages.get()  # blocks until a new message arrives
-        print("Message data", message_data)
         yield format_server_sent_events(message_data=json.dumps(message_data))
 
 
@@ -252,9 +249,9 @@ async def start_server(port):
     flask_server = ThreadedFlaskServer(port=3768)
     flask_server.start()
 
-    def update_queue(request_id: str, progress_bar_id: str, n: int, total: int, **kwargs):
+    def update_queue(request_id: str, progress_bar_id: str, format_dict: dict):
         forward_updates_over_server_sent_events(
-            request_id=request_id, progress_bar_id=progress_bar_id, n=n, total=total
+            request_id=request_id, progress_bar_id=progress_bar_id, format_dict=format_dict
         )
 
     http_server = ThreadedHTTPServer(port=PORT, callback=update_queue)
