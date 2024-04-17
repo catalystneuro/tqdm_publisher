@@ -230,7 +230,7 @@ async def start_server(port):
 
 
 def run_parallel_bar_demo() -> None:
-    """Asynchronously start the servers."""
+    """Asynchronously start the server."""
     asyncio.run(start_server(port=PORT))
 
 
