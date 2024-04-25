@@ -1,10 +1,11 @@
 import asyncio
+from uuid import UUID
 
 import pytest
 
-from uuid import UUID
 from tqdm_publisher import TQDMProgressSubscriber
 from tqdm_publisher.testing import create_tasks
+
 
 def test_initialization():
     subscriber = TQDMProgressSubscriber(iterable=[], on_progress_update=lambda x: x)
@@ -19,7 +20,7 @@ async def test_subscription_and_callback_execution():
     def test_callback(data):
         nonlocal n_callback_executions
         n_callback_executions += 1
-        
+
         assert "progress_bar_id" in data
         identifier = data["progress_bar_id"]
         assert str(UUID(identifier, version=4)) == identifier
@@ -34,5 +35,5 @@ async def test_subscription_and_callback_execution():
     # Simulate an update to trigger the callback
     for f in subscriber:
         await f
-        
+
     assert n_callback_executions > 1

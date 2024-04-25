@@ -6,9 +6,8 @@ from ._subscriber import TQDMProgressSubscriber
 
 class TQDMProgressHandler:
     def __init__(
-            self, 
-            queue_cls: queue.Queue = queue.Queue # Can provide different queue implementations (e.g. asyncio.Queue)
-        ):
+        self, queue_cls: queue.Queue = queue.Queue  # Can provide different queue implementations (e.g. asyncio.Queue)
+    ):
         self._queue = queue_cls
         self.listeners: List[self._queue] = []
 
@@ -47,7 +46,6 @@ class TQDMProgressHandler:
         listener_indices = range(number_of_listeners)
         for listener_index in listener_indices:
             self.listeners[listener_index].put_nowait(item=message)
-
 
     def unsubscribe(self, listener: queue.Queue) -> bool:
         """

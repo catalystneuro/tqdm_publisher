@@ -7,6 +7,7 @@ from tqdm_publisher.testing import create_tasks
 
 N_SUBSCRIPTIONS = 10
 
+
 def test_initialization():
     publisher = TQDMProgressPublisher()
     assert len(publisher.callbacks) == 0
