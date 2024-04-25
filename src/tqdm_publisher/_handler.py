@@ -5,11 +5,14 @@ from ._subscriber import TQDMProgressSubscriber
 
 
 class TQDMProgressHandler:
-    def __init__(self):
-        self.listeners: List[queue.Queue] = []
+    def __init__(
+        self, queue_cls: queue.Queue = queue.Queue  # Can provide different queue implementations (e.g. asyncio.Queue)
+    ):
+        self._queue = queue_cls
+        self.listeners: List[self._queue] = []
 
     def listen(self) -> queue.Queue:
-        new_queue = queue.Queue(maxsize=25)
+        new_queue = self._queue(maxsize=0)
         self.listeners.append(new_queue)
         return new_queue
 
@@ -41,9 +44,21 @@ class TQDMProgressHandler:
         """
         number_of_listeners = len(self.listeners)
         listener_indices = range(number_of_listeners)
-        listener_indices_from_newest_to_oldest = reversed(listener_indices)
-        for listener_index in listener_indices_from_newest_to_oldest:
-            if not self.listeners[listener_index].full():
-                self.listeners[listener_index].put_nowait(item=message)
-            else:  # When full, remove the newest listener in the stack
-                del self.listeners[listener_index]
+        for listener_index in listener_indices:
+            self.listeners[listener_index].put_nowait(item=message)
+
+    def unsubscribe(self, listener: queue.Queue) -> bool:
+        """
+        Unsubscribe a listener from the handler.
+
+        Args:
+            listener: The listener to unsubscribe.
+
+        Returns:
+            bool: True if the listener was successfully unsubscribed, False otherwise.
+        """
+        try:
+            self.listeners.remove(listener)
+            return True
+        except ValueError:
+            return False
