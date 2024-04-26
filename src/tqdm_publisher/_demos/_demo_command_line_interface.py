@@ -18,9 +18,6 @@ DEMOS = {
 
 DEMO_BASE_FOLDER_PATH = Path(__file__).parent
 
-RELATIVE_DEMO_BASE_FOLDER_PATH = DEMO_BASE_FOLDER_PATH.relative_to(Path.cwd())
-
-
 def _command_line_interface():
     """A simple command line interface for running the demo for TQDM Publisher."""
     if len(sys.argv) <= 1:
