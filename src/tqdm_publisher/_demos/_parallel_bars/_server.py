@@ -220,6 +220,7 @@ def update():
 
     return jsonify({"status": "success"})
 
+
 @app.route("/events", methods=["GET"])
 @cross_origin()
 def events():
