@@ -215,7 +215,7 @@ def update():
     progress_bar_id = data["id"]
     format_dict = data["data"]
 
-    # Forward updates over Sever-Side Events
+    # Forward updates over Server-Sent Events
     progress_handler.announce(dict(request_id=request_id, progress_bar_id=progress_bar_id, format_dict=format_dict))
 
     return jsonify({"status": "success"})
