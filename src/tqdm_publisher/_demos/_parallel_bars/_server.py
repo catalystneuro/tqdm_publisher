@@ -218,6 +218,8 @@ def update():
     # Forward updates over Server-Sent Events
     progress_handler.announce(dict(request_id=request_id, progress_bar_id=progress_bar_id, format_dict=format_dict))
 
+    return jsonify({"status": "success"})
+
 
 @app.route("/events", methods=["GET"])
 @cross_origin()

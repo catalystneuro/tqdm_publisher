@@ -5,6 +5,8 @@ import pytest
 from tqdm_publisher import TQDMProgressPublisher
 from tqdm_publisher.testing import create_tasks
 
+N_SUBSCRIPTIONS = 10
+
 
 def test_initialization():
     publisher = TQDMProgressPublisher()
@@ -29,8 +31,8 @@ async def test_subscription_and_callback_execution():
     tasks = create_tasks()
     publisher = TQDMProgressPublisher(asyncio.as_completed(tasks), total=len(tasks))
 
-    n_subscriptions = 10
-    for i in range(n_subscriptions):
+    N_SUBSCRIPTIONS = 10
+    for i in range(N_SUBSCRIPTIONS):
         callback_id = publisher.subscribe(
             lambda data, i=i: test_callback(i, data)
         )  # Creates a new scoped i value for subscription
@@ -40,7 +42,7 @@ async def test_subscription_and_callback_execution():
     for f in publisher:
         await f
 
-    assert len(n_callback_executions) == n_subscriptions
+    assert len(n_callback_executions) == N_SUBSCRIPTIONS
 
     for identifier, n_executions in n_callback_executions.items():
         assert n_executions > 1
