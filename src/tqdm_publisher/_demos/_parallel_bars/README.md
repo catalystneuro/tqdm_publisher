@@ -2,7 +2,7 @@
 This demo shows how to use a global `TQDMPublisher` instance to forward progress updates from parallel `TQDMPublisher` instances to the browser.
 
 ## The Approach
-In this demo, we track multipl, interdependent levels of progress updates by using a global `TQDMPublisher` instance to reflect the execution state of parallel `TQDMPublisher` instances.
+In this demo, we track multiple interdependent levels of progress updates by using a global `TQDMPublisher` instance to reflect the execution state of parallel `TQDMPublisher` instances.
 
 Similar to the [multiple bar demo](../_multiple_bars/README.md), a `request_id` is used to associate both the global and parallel progress bars with a specific group of elements on the browser. In particular, the ID of the global progress bar matches the `request_id`, allowing it to be distinguished from the lower-level progress bars.
 
