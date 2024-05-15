@@ -75,7 +75,7 @@ async def test_manual_updates():
     # Simulate updatse to trigger the callback
     for task in asyncio.as_completed(tasks):
         await task
-        subscriber.update(1) # Update by 1 iteration
+        subscriber.update(1)  # Update by 1 iteration
 
     assert n_callback_executions == total + 1
 
