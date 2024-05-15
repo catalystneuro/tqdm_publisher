@@ -1,10 +1,10 @@
-from typing import Any, Dict, Iterable
+from typing import Any, Dict, Iterable, Optional
 
 from ._publisher import TQDMProgressPublisher
 
 
 class TQDMProgressSubscriber(TQDMProgressPublisher):
-    def __init__(self, iterable: Iterable[Any], on_progress_update: callable, **tqdm_kwargs):
+    def __init__(self, on_progress_update: callable, iterable: Optional[Iterable[Any]]=None, **tqdm_kwargs):
         super().__init__(iterable=iterable, **tqdm_kwargs)
 
         def run_on_progress_update(format_dict: Dict[str, Any]):
