@@ -4,13 +4,8 @@ from ._publisher import TQDMProgressPublisher
 
 
 class TQDMProgressSubscriber(TQDMProgressPublisher):
-    def __init__(
-            self, 
-            *tqdm_args,
-            on_progress_update: callable, 
-            **tqdm_kwargs
-        ):
-        
+    def __init__(self, *tqdm_args, on_progress_update: callable, **tqdm_kwargs):
+
         super().__init__(*tqdm_args, **tqdm_kwargs)
 
         def run_on_progress_update(format_dict: Dict[str, Any]):
