@@ -1,5 +1,10 @@
-## Unreleased
-* Update the arguments for all `tqdm_publisher` classes to mirror the `tqdm` constructor, adding additional parameters as required keyword arguments. [PR #65](https://github.com/catalystneuro/tqdm_publisher/pull/65)
+## v0.1.1 (May 20th, 2024)
+* Patch release for consistent usage of our wrappers with the `tqdm.tqdm` class, particularly to support manual updates to the progress bar
+
+### Bug Fixes
+- Updated the arguments for all `tqdm_publisher` classes to mirror the `tqdm` constructor, adding additional parameters as required keyword arguments. [PR #65](https://github.com/catalystneuro/tqdm_publisher/pull/65)
+
+
 
 ## v0.1.0 (April 26th, 2024)
 * The first alpha release of `tqdm_publisher`.
