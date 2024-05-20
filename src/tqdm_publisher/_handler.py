@@ -17,7 +17,7 @@ class TQDMProgressHandler:
         return new_queue
 
     def create_progress_subscriber(
-        self, iterable: Iterable[Any], additional_metadata: dict = dict(), **tqdm_kwargs
+        self, *tqdm_args, additional_metadata: dict = dict(), **tqdm_kwargs
     ) -> TQDMProgressSubscriber:
 
         def on_progress_update(progress_update: dict):
@@ -31,7 +31,7 @@ class TQDMProgressHandler:
             """
             self.announce(message=dict(**progress_update, **additional_metadata))
 
-        return TQDMProgressSubscriber(iterable=iterable, on_progress_update=on_progress_update, **tqdm_kwargs)
+        return TQDMProgressSubscriber(*tqdm_args, on_progress_update=on_progress_update, **tqdm_kwargs)
 
     def announce(self, message: Dict[Any, Any]):
         """
