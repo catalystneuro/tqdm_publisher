@@ -7,7 +7,7 @@ source = "vcs"
 
 [project]
 name = "tqdm_publisher"
-version="0.1.0"
+version="0.1.1"
 authors = [
   { name="Garrett Flynn", email="garrett.flynn@catalystneuro.com" },
   { name="Cody Baker", email="cody.baker@catalystneuro.com" },
