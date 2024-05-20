@@ -32,10 +32,10 @@ async def test_subscription_and_callback_execution():
     tasks = create_tasks()
     total = len(tasks)
     subscriber = TQDMProgressSubscriber(
-        test_callback,
         asyncio.as_completed(tasks),
         total=total,
         mininterval=0,
+        on_progress_update=test_callback,
     )
 
     # Simulate an update to trigger the callback
@@ -66,7 +66,7 @@ async def test_manual_updates():
 
     tasks = create_tasks(10)
     total = len(tasks)
-    subscriber = TQDMProgressSubscriber(test_callback, total=total, mininterval=0)
+    subscriber = TQDMProgressSubscriber(on_progress_update=test_callback, total=total, mininterval=0)
 
     # Simulate updatse to trigger the callback
     for task in asyncio.as_completed(tasks):

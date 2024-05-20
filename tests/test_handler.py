@@ -40,7 +40,8 @@ async def test_subscription_and_callback_execution():
     for _ in range(N_SUBSCRIBERS):
 
         subscriber = handler.create_progress_subscriber(
-            asyncio.as_completed(create_tasks(number_of_tasks=N_TASKS_PER_SUBSCRIBER)), total=N_TASKS_PER_SUBSCRIBER
+            asyncio.as_completed(create_tasks(number_of_tasks=N_TASKS_PER_SUBSCRIBER)), 
+            total=N_TASKS_PER_SUBSCRIBER
         )
 
         for f in subscriber:

@@ -1,3 +1,6 @@
+## Unreleased
+* Update the arguments for all `tqdm_publisher` classes to mirror the `tqdm` constructor, adding additional parameters as required keyword arguments.
+
 ## v0.1.0 (April 26th, 2024)
 * The first alpha release of `tqdm_publisher`.
 

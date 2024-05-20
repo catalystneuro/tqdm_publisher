@@ -5,8 +5,8 @@ from tqdm import tqdm as base_tqdm
 
 
 class TQDMProgressPublisher(base_tqdm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, *tqdm_args, **tqdm_kwargs):
+        super().__init__(*tqdm_args, **tqdm_kwargs)
         self.progress_bar_id = str(uuid4())
         self.callbacks = dict()
 
