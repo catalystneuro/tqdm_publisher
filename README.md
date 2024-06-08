@@ -13,7 +13,7 @@ pip install tqdm_publisher
 ```
 ## Getting Started
 ### Basic Usage
-To monitor the progress of an existing `tqdm` progress bar, simply swap the `tqdm`and `TQDMPublisher` constructors. Then, declare a callback function to handle progress updates, and subscribe it to the `TQDMPublisher` updates using the `subscribe` method _before iteration begins_.
+To monitor the progress of an existing `tqdm` progress bar, simply swap the `tqdm`and `TQDMProgressPublisher` constructors. Then, declare a callback function to handle progress updates, and subscribe it to the `TQDMProgressPublisher` updates using the `subscribe` method _before iteration begins_.
 
 #### Original Code
 ```python
@@ -41,16 +41,16 @@ for duration in progress_bar:
 import random
 import time
 
-from tqdm_publisher import TQDMPublisher
+from tqdm_publisher import TQDMProgressPublisher
 
 N_TASKS = 100
 durations = [ random.uniform(0, 1.0) for _ in range(N_TASKS) ]
-progress_bar = TQDMPublisher(durations)
+progress_bar = TQDMProgressPublisher(durations)
 
 # Declare a callback function to handle progress updates
 on_update = lambda info: print('Progress Update', info)
 
-# Subscribe the callback to the TQDMPublisher
+# Subscribe the callback to the TQDMProgressPublisher
 progress_bar.subscribe(on_update)
 
 for duration in progress_bar:
@@ -58,18 +58,20 @@ for duration in progress_bar:
 ```
 
 ## Demo
-A complete demo of `tqdm_publisher` can be found in the `demo` directory, which shows how to forward progress updates from the same `TQDMPublisher` instance to multiple clients.
+A complete demo of `tqdm_publisher` can be found in the `demo` directory, which shows how to forward progress updates from the same `TQDMProgressPublisher` instance to multiple clients.
 
 To run the demo, first install the dependencies:
 ```bash
 pip install tqdm_publisher[demo]
 ```
 
-Then, run the base CLI command to start the demo server and client:
+Then, run one of the following commands to start the demo server and client with a single instance, multiple instances, or parallel instances of `TQDMProgressPublisher`:
 ```bash
-tqdm_publisher demo
+tqdm_publisher demo_single
+tqdm_publisher demo_multiple
+tqdm_publisher demo_parallel
 ```
 
-> **Note:** Alternatively, you can run each part of the demo separately by running `tqdm_publisher demo --server` and `tqdm_publisher demo --client` in separate terminals.
+<!-- > **Note:** Alternatively, you can run each part of the demo separately by running `tqdm_publisher demo --server` and `tqdm_publisher demo --client` in separate terminals. -->
 
-Finally, you can click the Create Progress Bar button to create a new `TQDMPublisher` instance, which will begin updating based on the `TQDMPublisher` instance in the Python script.
+In the opened webpage, click the "Create Progress Bar" button to create a new `TQDMProgressPublisher` instance, which will begin updating based on the `TQDMProgressPublisher` instance in the Python script.

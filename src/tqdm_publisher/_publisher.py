@@ -46,7 +46,7 @@ class TQDMProgressPublisher(base_tqdm):
         >>> def my_callback(format_dict):
         >>>     print("Progress update", format_dict)
         >>>
-        >>> publisher = TQDMPublisher()
+        >>> publisher = TQDMProgressPublisher()
         >>> callback_id = publisher.subscribe(my_callback)
         >>> print(callback_id)  # Prints the unique callback ID
         """
@@ -79,7 +79,7 @@ class TQDMProgressPublisher(base_tqdm):
 
         Examples
         --------
-        >>> publisher = TQDMPublisher()
+        >>> publisher = TQDMProgressPublisher()
         >>> callback_id = publisher.subscribe(my_callback)
         >>> print(callback_id)  # Prints the unique callback ID
         >>> unsubscribed = publisher.unsubscribe(callback_id)
